@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>【DFS找环】New_Reform_CodeForces_-_659E</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<p>Berland has n cities connected by m bidirectional roads. No road connects a city to itself, and each pair of cities is connected by no more than one road. It is not guaranteed that you can get from any city to any other one, using only the existing roads. <br/>
+The President of Berland decided to make changes to the road system and instructed the Ministry of Transport to make this reform. Now, each road should be unidirectional (only lead from one city to another). <br/>
+In order not to cause great resentment among residents, the reform needs to be conducted so that there can be as few separate cities as possible. A city is considered separate, if no road leads into it, while it is allowed to have roads leading from this city. <br/>
+Help the Ministry of Transport to find the minimum possible number of separate cities after the reform. <br/>
+Input <br/>
+The first line of the input contains two positive integers, n and m — the number of the cities and the number of roads in Berland (2 ≤ n ≤ 100 000, 1 ≤ m ≤ 100 000).  <br/>
+Next m lines contain the descriptions of the roads: the i-th road is determined by two distinct integers xi, yi (1 ≤ xi, yi ≤ n, xi ≠ yi), where xi and yi are the numbers of the cities connected by the i-th road. <br/>
+It is guaranteed that there is no more than one road between each pair of cities, but it is not guaranteed that from any city you can get to any other one, using only roads. <br/>
+Output <br/>
+Print a single integer — the minimum number of separated cities after the reform. <br/>
+Examples <br/>
+Input  <br/>
+4 3 <br/>
+2 1 <br/>
+1 3 <br/>
+4 3 <br/>
+Output  <br/>
+1 <br/>
+Input  <br/>
+5 5 <br/>
+2 1 <br/>
+1 3 <br/>
+2 3 <br/>
+2 5 <br/>
+4 3 <br/>
+Output  <br/>
+0 <br/>
+Input  <br/>
+6 5 <br/>
+1 2 <br/>
+2 3 <br/>
+4 5 <br/>
+4 6 <br/>
+5 6 <br/>
+Output  <br/>
+1</p>
+<p>一个连通图 跑环 有环便是0 无环便是0</p>
+<p>dfs 搜  只要搜到 标记过的便一定成环</p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include&lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include&lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include&lt;cstring&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cmath&gt;</span>
+<span class="hljs-preprocessor">#include &lt;map&gt;</span>
+<span class="hljs-preprocessor">#include &lt;set&gt;</span>
+<span class="hljs-preprocessor">#include &lt;vector&gt;</span>
+<span class="hljs-preprocessor">#include &lt;queue&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn = <span class="hljs-number">100000</span> + <span class="hljs-number">5</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> INF = <span class="hljs-number">0x3f3f3f3f</span>;
+<span class="hljs-keyword">int</span> n, m;
+
+<span class="hljs-stl_container"><span class="hljs-built_in">vector</span>&lt;<span class="hljs-keyword">int</span>&gt;</span> G[maxn];
+<span class="hljs-keyword">bool</span> vis[maxn];
+<span class="hljs-keyword">int</span> ans, res;
+
+<span class="hljs-keyword">void</span> dfs(<span class="hljs-keyword">int</span> nx, <span class="hljs-keyword">int</span> pre) {
+    <span class="hljs-keyword">if</span> (vis[nx]) {
+        res = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">return</span>;
+    }
+    vis[nx] = <span class="hljs-number">1</span>;
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; G[nx].size(); i++) {
+        <span class="hljs-keyword">if</span> (G[nx][i]!=pre) {
+            dfs(G[nx][i], nx);
+        }
+    }
+}
+
+<span class="hljs-keyword">int</span> main() {
+    <span class="hljs-keyword">int</span> st, ed;
+    <span class="hljs-keyword">while</span> (<span class="hljs-built_in">cin</span> &gt;&gt; n &gt;&gt; m) {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; m; i++) {
+            <span class="hljs-built_in">cin</span> &gt;&gt; st &gt;&gt; ed;
+            G[st].push_back(ed);
+            G[ed].push_back(st);
+        }
+
+         ans = <span class="hljs-number">0</span>,res;
+
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">1</span>; i &lt;= n; i++) {
+            <span class="hljs-keyword">if</span> (!vis[i]) {
+                res = <span class="hljs-number">1</span>;
+                dfs(i, <span class="hljs-number">0</span>);
+                ans += res;
+            }
+        }
+        <span class="hljs-built_in">cout</span> &lt;&lt; ans &lt;&lt; endl;
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+</code></pre>
+</div>
+</body>
+</html>

@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>python_爬虫入门_练习四_selenium_保存登录cookie到本地反复使用</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<h5><a id="_selenium_chrome__0"></a>本次用到的主要是 selenium chrome 模拟</h5>
+<p><s>这个真的是太慢了</s><br/>
+其实存下cookie 用 request 也是可以的</p>
+<h5><a id="_3"></a>本次遇到的问题</h5>
+<ul>
+<li>发生异常: InvalidCookieDomainException<br/>
+Message: invalid cookie domain</li>
+<li>InvalidCookieDomainException<br/>
+Message: invalid cookie expiry</li>
+</ul>
+<h5><a id="_8"></a>以上处理办法</h5>
+<pre><code class="prism language-py"><span class="token keyword">for</span> cookies <span class="token keyword">in</span> cookie <span class="token punctuation">:</span>
+               <span class="token keyword">if</span> <span class="token string">'expiry'</span> <span class="token keyword">in</span> cookies<span class="token punctuation">:</span>
+                    <span class="token keyword">del</span> cookies<span class="token punctuation">[</span><span class="token string">'expiry'</span><span class="token punctuation">]</span>
+               <span class="token keyword">if</span> <span class="token string">'domain'</span> <span class="token keyword">in</span> cookie<span class="token punctuation">:</span>
+                    <span class="token keyword">del</span> cookies<span class="token punctuation">[</span><span class="token string">'domain'</span><span class="token punctuation">]</span>
+</code></pre>
+<p>直接删除会报错元素 醉了</p>
+<h5><a id="get_cookie_17"></a>get_cookie</h5>
+<p>其实这里cookie 也可以拿 json 存<br/>
+pickle.dump 存码到本地 本质没有啥区别</p>
+<pre><code class="prism language-py"><span class="token keyword">def</span> <span class="token function">save_cookie</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span> <span class="token punctuation">:</span>
+          <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"首先第一次登录获得cookie\n完成任意键继续"</span><span class="token punctuation">)</span>
+          self<span class="token punctuation">.</span>_brower<span class="token punctuation">.</span>get<span class="token punctuation">(</span>self<span class="token punctuation">.</span>_url_douban<span class="token punctuation">)</span>
+          <span class="token builtin">input</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+          cookie <span class="token operator">=</span> self<span class="token punctuation">.</span>_brower<span class="token punctuation">.</span>get_cookies<span class="token punctuation">(</span><span class="token punctuation">)</span>
+          <span class="token keyword">print</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>_brower<span class="token punctuation">.</span>get_cookies<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+          f <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>_cookies_file<span class="token punctuation">,</span> <span class="token string">'wb'</span><span class="token punctuation">)</span>
+          f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>pickle<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>cookie<span class="token punctuation">)</span><span class="token punctuation">)</span>
+          f<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+          <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'over'</span><span class="token punctuation">)</span>
+</code></pre>
+<h5><a id="_33"></a>完整代码</h5>
+<p>以下 代码难度不大 纯粹模拟 调之前学习的API</p>
+<pre><code class="prism language-py"><span class="token keyword">import</span> selenium<span class="token punctuation">.</span>webdriver
+<span class="token keyword">import</span> pickle
+<span class="token keyword">import</span> time
+<span class="token keyword">import</span> os
+
+
+<span class="token keyword">def</span> <span class="token function">getPureDomainCookies</span><span class="token punctuation">(</span>cookies<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    domain2cookie<span class="token operator">=</span><span class="token punctuation">{</span><span class="token punctuation">}</span>  <span class="token comment">#做一个域到cookie的映射</span>
+    <span class="token keyword">for</span> cookie <span class="token keyword">in</span> cookies<span class="token punctuation">:</span>
+        domain<span class="token operator">=</span>cookie<span class="token punctuation">[</span><span class="token string">'domain'</span><span class="token punctuation">]</span>
+        <span class="token keyword">if</span> domain <span class="token keyword">in</span> domain2cookie<span class="token punctuation">:</span>
+            domain2cookie<span class="token punctuation">[</span>domain<span class="token punctuation">]</span><span class="token punctuation">.</span>append<span class="token punctuation">(</span>cookie<span class="token punctuation">)</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            domain2cookie<span class="token punctuation">[</span>domain<span class="token punctuation">]</span><span class="token operator">=</span><span class="token punctuation">[</span><span class="token punctuation">]</span>
+    maxCnt<span class="token operator">=</span><span class="token number">0</span>
+    ansDomain<span class="token operator">=</span><span class="token string">''</span>
+    <span class="token keyword">for</span> domain <span class="token keyword">in</span> domain2cookie<span class="token punctuation">.</span>keys<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        cnt<span class="token operator">=</span><span class="token builtin">len</span><span class="token punctuation">(</span>domain2cookie<span class="token punctuation">[</span>domain<span class="token punctuation">]</span><span class="token punctuation">)</span>
+        <span class="token keyword">if</span> cnt <span class="token operator">&gt;</span> maxCnt<span class="token punctuation">:</span>
+            maxCnt<span class="token operator">=</span>cnt
+            ansDomain<span class="token operator">=</span>domain
+    ansCookies<span class="token operator">=</span>domain2cookie<span class="token punctuation">[</span>ansDomain<span class="token punctuation">]</span>
+    <span class="token keyword">return</span> ansCookies
+
+
+<span class="token keyword">class</span> <span class="token class-name">Seledouban</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+     _path_file <span class="token operator">=</span> <span class="token string">'douban_cookie_login'</span>
+     _path_chromdriver <span class="token operator">=</span> <span class="token string">'source/chromedriver.exe'</span>
+     _url_douban <span class="token operator">=</span> <span class="token string">'https://www.zhihu.com/'</span>
+     _brower <span class="token operator">=</span> <span class="token boolean">None</span>
+     _cookies_file <span class="token operator">=</span> _path_file <span class="token operator">+</span> <span class="token string">'/douban_cookie.pkl'</span>
+     _header_data <span class="token operator">=</span> <span class="token punctuation">{</span>
+          <span class="token string">'Accept'</span><span class="token punctuation">:</span> <span class="token string">'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3'</span><span class="token punctuation">,</span>
+          <span class="token string">'Accept-Encoding'</span><span class="token punctuation">:</span> <span class="token string">'gzip, deflate, br'</span><span class="token punctuation">,</span>
+          <span class="token string">'Accept-Language'</span><span class="token punctuation">:</span> <span class="token string">'zh-CN,zh;q=0.9'</span><span class="token punctuation">,</span>
+          <span class="token string">'Cache-Control'</span><span class="token punctuation">:</span> <span class="token string">'max-age=0'</span><span class="token punctuation">,</span>
+          <span class="token string">'Connection'</span><span class="token punctuation">:</span> <span class="token string">'keep-alive'</span><span class="token punctuation">,</span>
+          <span class="token string">'Host'</span><span class="token punctuation">:</span> <span class="token string">'www.douban.com'</span><span class="token punctuation">,</span>
+          <span class="token string">'Sec-Fetch-Mode'</span><span class="token punctuation">:</span> <span class="token string">'navigate'</span><span class="token punctuation">,</span>
+          <span class="token string">'Sec-Fetch-Site'</span><span class="token punctuation">:</span> <span class="token string">'none'</span><span class="token punctuation">,</span>
+          <span class="token string">'Sec-Fetch-User'</span><span class="token punctuation">:</span> <span class="token string">'?1'</span><span class="token punctuation">,</span>
+          <span class="token string">'Upgrade-Insecure-Requests'</span><span class="token punctuation">:</span> <span class="token string">'1'</span><span class="token punctuation">,</span>
+          <span class="token string">'User-Agent'</span><span class="token punctuation">:</span> <span class="token string">'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36'</span>
+     <span class="token punctuation">}</span>
+     <span class="token keyword">def</span> <span class="token function">save_cookie</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span> <span class="token punctuation">:</span>
+          <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"首先第一次登录获得cookie\n完成任意键继续"</span><span class="token punctuation">)</span>
+          self<span class="token punctuation">.</span>_brower<span class="token punctuation">.</span>get<span class="token punctuation">(</span>self<span class="token punctuation">.</span>_url_douban<span class="token punctuation">)</span>
+          <span class="token builtin">input</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+          cookie <span class="token operator">=</span> self<span class="token punctuation">.</span>_brower<span class="token punctuation">.</span>get_cookies<span class="token punctuation">(</span><span class="token punctuation">)</span>
+          <span class="token keyword">print</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>_brower<span class="token punctuation">.</span>get_cookies<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+          f <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>_cookies_file<span class="token punctuation">,</span> <span class="token string">'wb'</span><span class="token punctuation">)</span>
+          f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>pickle<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>cookie<span class="token punctuation">)</span><span class="token punctuation">)</span>
+          f<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+          <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'over'</span><span class="token punctuation">)</span>
+
+
+     <span class="token keyword">def</span> <span class="token function">load_cookie</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span> <span class="token punctuation">:</span>
+          f <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>_cookies_file<span class="token punctuation">,</span> <span class="token string">'rb'</span><span class="token punctuation">)</span>
+          cookie <span class="token operator">=</span> pickle<span class="token punctuation">.</span>load<span class="token punctuation">(</span>f<span class="token punctuation">)</span>
+          f<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+          <span class="token keyword">for</span> cookies <span class="token keyword">in</span> cookie <span class="token punctuation">:</span>
+               <span class="token keyword">if</span> <span class="token string">'expiry'</span> <span class="token keyword">in</span> cookies<span class="token punctuation">:</span>
+                    <span class="token keyword">del</span> cookies<span class="token punctuation">[</span><span class="token string">'expiry'</span><span class="token punctuation">]</span>
+               <span class="token keyword">if</span> <span class="token string">'domain'</span> <span class="token keyword">in</span> cookie<span class="token punctuation">:</span>
+                    <span class="token keyword">del</span> cookies<span class="token punctuation">[</span><span class="token string">'domain'</span><span class="token punctuation">]</span>
+
+          self<span class="token punctuation">.</span>_brower<span class="token punctuation">.</span>get<span class="token punctuation">(</span>self<span class="token punctuation">.</span>_url_douban<span class="token punctuation">)</span>
+
+          <span class="token keyword">for</span> i <span class="token keyword">in</span> cookie <span class="token punctuation">:</span>
+               self<span class="token punctuation">.</span>_brower<span class="token punctuation">.</span>add_cookie<span class="token punctuation">(</span>i<span class="token punctuation">)</span>
+          <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"load over"</span><span class="token punctuation">)</span>
+          self<span class="token punctuation">.</span>_brower<span class="token punctuation">.</span>get<span class="token punctuation">(</span>self<span class="token punctuation">.</span>_url_douban<span class="token punctuation">)</span>
+          <span class="token builtin">input</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+          self<span class="token punctuation">.</span>_brower<span class="token punctuation">.</span>refresh<span class="token punctuation">(</span><span class="token punctuation">)</span>
+          <span class="token builtin">input</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+     <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span> <span class="token punctuation">:</span>
+          self<span class="token punctuation">.</span>_brower <span class="token operator">=</span> selenium<span class="token punctuation">.</span>webdriver<span class="token punctuation">.</span>Chrome<span class="token punctuation">(</span>self<span class="token punctuation">.</span>_path_chromdriver<span class="token punctuation">)</span>
+          self<span class="token punctuation">.</span>_brower<span class="token punctuation">.</span>get<span class="token punctuation">(</span>self<span class="token punctuation">.</span>_url_douban<span class="token punctuation">)</span>
+          <span class="token keyword">if</span><span class="token punctuation">(</span>os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>exists<span class="token punctuation">(</span>self<span class="token punctuation">.</span>_cookies_file<span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token boolean">False</span><span class="token punctuation">)</span> <span class="token punctuation">:</span> 
+               self<span class="token punctuation">.</span>save_cookie<span class="token punctuation">(</span><span class="token punctuation">)</span>
+          <span class="token keyword">else</span> <span class="token punctuation">:</span>
+               self<span class="token punctuation">.</span>load_cookie<span class="token punctuation">(</span><span class="token punctuation">)</span>
+          
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span> <span class="token punctuation">:</span>
+     zh <span class="token operator">=</span> Seledouban<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+</div>
+</body>
+</html>

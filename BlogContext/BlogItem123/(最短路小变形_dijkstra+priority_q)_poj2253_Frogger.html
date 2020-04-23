@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>(最短路小变形_dijkstra+priority_q)_poj2253_Frogger</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<p>题目连接：<a data-token="a277f06f248c02ad8002bb3c657155c5" href="http://poj.org/problem?id=2253" rel="nofollow">http://poj.org/problem?id=2253</a></p>
+<p>题意：给出一个无向图,求一条1~2的路径使得路径上的最大边权最小. <br/>
+分析：dij将距离更新改成取最大值即可，即d[i]表示到达i点过程中的最大边权，更新后可能多个，再靠优先队列取出最小的最大边权。 <br/>
+ 精度问题 C++过</p>
+<p>这里改变了松弛条件</p>
+<pre class="prettyprint"><code class="hljs livecodeserver"><span class="hljs-keyword">if</span>(d[e.<span class="hljs-keyword">second</span>]&gt;<span class="hljs-built_in">max</span>(e.<span class="hljs-keyword">first</span>,d[v])){
+    d[e.<span class="hljs-keyword">second</span>]=<span class="hljs-built_in">max</span>(d[v],e.<span class="hljs-keyword">first</span>)<span class="hljs-comment">;//这样就可以保证 d存的是每次的最长边了 </span>
+   <span class="hljs-comment"> //que.push(P(d[e.second],e.second));</span>
+}</code></pre>
+<p>0ms飘过 实验了一下其他没有用堆去维护的  大部分都是16ms 和 32 ms</p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cmath&gt;</span>
+<span class="hljs-preprocessor">#include &lt;vector&gt;</span>
+<span class="hljs-preprocessor">#include &lt;queue&gt;</span>
+<span class="hljs-preprocessor">#include &lt;stack&gt;</span>
+<span class="hljs-preprocessor">#include &lt;map&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ull;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn=<span class="hljs-number">200</span>+<span class="hljs-number">5</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> mod=<span class="hljs-number">1e9</span>+<span class="hljs-number">7</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> INF=<span class="hljs-number">0x3f3f3f3f</span>;
+
+<span class="hljs-keyword">typedef</span> pair&lt;<span class="hljs-keyword">double</span>,<span class="hljs-keyword">int</span>&gt; P;
+<span class="hljs-stl_container"><span class="hljs-built_in">vector</span>&lt;P&gt;</span> G[maxn];
+<span class="hljs-keyword">bool</span> vis[maxn];
+<span class="hljs-keyword">int</span> n,m;
+<span class="hljs-keyword">double</span> d[maxn];
+<span class="hljs-keyword">int</span> cas;
+
+<span class="hljs-keyword">double</span> jl(<span class="hljs-keyword">double</span> x1,<span class="hljs-keyword">double</span> y1,<span class="hljs-keyword">double</span> x2,<span class="hljs-keyword">double</span> y2){
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">sqrt</span>((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+}
+
+<span class="hljs-keyword">void</span> dijkstra(<span class="hljs-keyword">int</span> s){
+    priority_queue&lt;P,<span class="hljs-stl_container"><span class="hljs-built_in">vector</span>&lt;P&gt;</span>,greater&lt;P&gt; &gt; que;
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;n;i++) {
+        d[i]=<span class="hljs-number">1e9</span>;
+        vis[i]=<span class="hljs-number">0</span>;   
+    }
+    d[s]=<span class="hljs-number">0</span>;
+    que.push(P(<span class="hljs-number">0</span>,s));
+    <span class="hljs-keyword">while</span>(!que.empty()){
+        P p=que.top();que.pop();
+        <span class="hljs-keyword">int</span> v=p.second;
+        <span class="hljs-keyword">if</span>(vis[v]) <span class="hljs-keyword">continue</span>;<span class="hljs-comment">//我们每次弹出的已经是最短路中要的边 所以已经确保了最短路</span>
+        vis[v]=<span class="hljs-number">1</span>; <span class="hljs-comment">//所以在之后 松弛时 直接存每次 最长边就好</span>
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;G[v].size();i++){
+            P e=G[v][i];
+            <span class="hljs-keyword">if</span>(d[e.second]&gt;max(e.first,d[v])){
+                d[e.second]=max(d[v],e.first);
+                que.push(P(d[e.second],e.second));
+            }
+        }
+    }   
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"Scenario #%d\n"</span>,cas++);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"Frog Distance = %.3lf\n\n"</span>,d[<span class="hljs-number">1</span>]);
+}
+
+<span class="hljs-keyword">double</span> a[maxn],b[maxn];
+
+<span class="hljs-keyword">int</span> main(){
+    cas=<span class="hljs-number">1</span>;
+    <span class="hljs-keyword">while</span>(<span class="hljs-built_in">cin</span>&gt;&gt;n&amp;&amp;n){
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;n;i++) G[i].clear();
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;n;i++){
+            <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%lf %lf"</span>,&amp;a[i],&amp;b[i]);
+        }
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;n;i++){
+            <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> j=<span class="hljs-number">0</span>;j&lt;n;j++){
+                <span class="hljs-keyword">if</span>(i==j)  <span class="hljs-keyword">continue</span>;
+                <span class="hljs-keyword">else</span>{
+                    G[i].push_back(P(jl(a[i],b[i],a[j],b[j]),j));
+                }
+            }
+        }
+        dijkstra(<span class="hljs-number">0</span>);
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+</div>
+</body>
+</html>

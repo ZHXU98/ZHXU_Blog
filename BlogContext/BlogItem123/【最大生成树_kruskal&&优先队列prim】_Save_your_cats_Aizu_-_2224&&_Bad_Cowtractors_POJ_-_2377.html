@@ -1,0 +1,332 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>【最大生成树_kruskal&&优先队列prim】_Save_your_cats_Aizu_-_2224&&_Bad_Cowtractors_POJ_-_2377</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<p>Save your cats Aizu - 2224</p>
+<p>Nicholas Y. Alford was a cat lover. He had a garden in a village and kept many cats in his garden. The cats were so cute that people in the village also loved them.  <br/>
+One day, an evil witch visited the village. She envied the cats for being loved by everyone. She drove magical piles in his garden and enclosed the cats with magical fences running between the piles. She said “Your cats are shut away in the fences until they become ugly old cats.” like a curse and went away.  <br/>
+Nicholas tried to break the fences with a hummer, but the fences are impregnable against his effort. He went to a church and asked a priest help. The priest looked for how to destroy the magical fences in books and found they could be destroyed by holy water. The Required amount of the holy water to destroy a fence was proportional to the length of the fence. The holy water was, however, fairly expensive. So he decided to buy exactly the minimum amount of the holy water required to save all his cats. How much holy water would be required?  <br/>
+Input <br/>
+The input has the following format:  <br/>
+N M <br/>
+x1 y1 <br/>
+. <br/>
+. <br/>
+. <br/>
+xN yN <br/>
+p1 q1 <br/>
+. <br/>
+. <br/>
+. <br/>
+pM qM <br/>
+The first line of the input contains two integers N (2 ≤ N ≤ 10000) and M (1 ≤ M). N indicates the number of magical piles and M indicates the number of magical fences. The following N lines describe the coordinates of the piles. Each line contains two integers xi and yi (-10000 ≤ xi, yi ≤ 10000). The following M lines describe the both ends of the fences. Each line contains two integers pj and qj (1 ≤ pj, qj ≤ N). It indicates a fence runs between the pj-th pile and the qj-th pile.  <br/>
+You can assume the following:  <br/>
+No Piles have the same coordinates. <br/>
+A pile doesn’t lie on the middle of fence. <br/>
+No Fences cross each other. <br/>
+There is at least one cat in each enclosed area. <br/>
+It is impossible to destroy a fence partially. <br/>
+A unit of holy water is required to destroy a unit length of magical fence. <br/>
+Output <br/>
+Output a line containing the minimum amount of the holy water required to save all his cats. Your program may output an arbitrary number of digits after the decimal point. However, the absolute error should be 0.001 or less.  <br/>
+Sample Input 1 <br/>
+3 3 <br/>
+0 0 <br/>
+3 0 <br/>
+0 4 <br/>
+1 2 <br/>
+2 3 <br/>
+3 1 <br/>
+Output for the Sample Input 1 <br/>
+3.000 <br/>
+Sample Input 2 <br/>
+4 3 <br/>
+0 0 <br/>
+-100 0 <br/>
+100 0 <br/>
+0 100 <br/>
+1 2 <br/>
+1 3 <br/>
+1 4 <br/>
+Output for the Sample Input 2 <br/>
+0.000 <br/>
+Sample Input 3 <br/>
+6 7 <br/>
+2 0 <br/>
+6 0 <br/>
+8 2 <br/>
+6 3 <br/>
+0 5 <br/>
+1 7 <br/>
+1 2 <br/>
+2 3 <br/>
+3 4 <br/>
+4 1 <br/>
+5 1 <br/>
+5 4 <br/>
+5 6 <br/>
+Output for the Sample Input 3 <br/>
+7.236 <br/>
+Sample Input 4 <br/>
+6 6 <br/>
+0 0 <br/>
+0 1 <br/>
+1 0 <br/>
+30 0 <br/>
+0 40 <br/>
+30 40 <br/>
+1 2 <br/>
+2 3 <br/>
+3 1 <br/>
+4 5 <br/>
+5 6 <br/>
+6 4 <br/>
+Output for the Sample Input 4 <br/>
+31.000 <br/>
+简单翻译过来 是给n个坐标 后面m个 是联通情况</p>
+<p>问你破坏最少是多少</p>
+<p>其实就是破话掉环上最小的一个边 直到没有环</p>
+<p>考虑最（小）大生成树 和边的和 相减</p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;stack&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cmath&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn=<span class="hljs-number">10000</span>+<span class="hljs-number">10</span>;
+<span class="hljs-keyword">int</span> pos,n,m;
+
+<span class="hljs-keyword">struct</span> egde{
+    <span class="hljs-keyword">int</span> u,v;
+    <span class="hljs-keyword">double</span> dis;
+    egde(){};
+    egde(<span class="hljs-keyword">int</span> a,<span class="hljs-keyword">int</span> b,<span class="hljs-keyword">double</span> c){u=a,v=b,dis=c;}
+    <span class="hljs-keyword">bool</span> <span class="hljs-keyword">operator</span>&lt;(<span class="hljs-keyword">const</span> egde &amp;a) <span class="hljs-keyword">const</span> {<span class="hljs-keyword">return</span> dis &gt; a.dis; }
+
+};
+egde es[maxn*<span class="hljs-number">10</span>],e;<span class="hljs-comment">// 太小过不去。。。 边也没有个数 m x2吧 得写下面 所以试了几次 x10过了</span>
+
+<span class="hljs-keyword">struct</span> node{
+    <span class="hljs-keyword">int</span> x,y;
+}p[maxn];
+
+<span class="hljs-keyword">int</span> pre[maxn];
+
+<span class="hljs-keyword">void</span> init(){
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;n;i++){
+        pre[i]=i;
+    }
+}
+
+<span class="hljs-keyword">int</span> finds(<span class="hljs-keyword">int</span> x){
+    <span class="hljs-keyword">return</span> pre[x]!=x?pre[x]=finds(pre[x]):x;
+}
+
+<span class="hljs-keyword">void</span> unions(<span class="hljs-keyword">int</span> x,<span class="hljs-keyword">int</span> y){
+    x=finds(x),y=finds(y);
+    <span class="hljs-keyword">if</span>(x!=y){
+        pre[x]=y;
+    }
+}
+
+<span class="hljs-keyword">double</span> Kruskal(){
+    sort(es,es+pos);
+    init();
+    <span class="hljs-keyword">double</span> res=<span class="hljs-number">0</span>;
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;pos;i++){
+         e = es[i];
+        <span class="hljs-keyword">if</span>(finds(e.u)!=finds(e.v)){
+            unions(e.u,e.v);
+            res+=e.dis;
+        }
+    }
+    <span class="hljs-keyword">return</span> res;
+}
+
+<span class="hljs-keyword">int</span> main(){
+    <span class="hljs-keyword">while</span>(<span class="hljs-built_in">cin</span>&gt;&gt;n&gt;&gt;m){
+        <span class="hljs-keyword">int</span> x,y;
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;n;i++){
+            <span class="hljs-built_in">cin</span>&gt;&gt;p[i].x&gt;&gt;p[i].y;    
+        }
+        pos=<span class="hljs-number">0</span>;
+        <span class="hljs-keyword">double</span> sum=<span class="hljs-number">0</span>;
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;m;i++){
+            <span class="hljs-built_in">cin</span>&gt;&gt;x&gt;&gt;y;
+            x--;y--;
+            <span class="hljs-keyword">double</span> t=<span class="hljs-built_in">sqrt</span>((p[x].x-p[y].x)*(p[x].x-p[y].x)+(p[x].y-p[y].y)*(p[x].y-p[y].y));
+            es[pos++]=egde(x,y,t);
+            es[pos++]=egde(y,x,t);
+            sum+=t;
+        }
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">"%.3lf\n"</span>,sum-Kruskal());
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+<p>这里 我补一个 用堆 优先队列 prim 写的最大生成树  <br/>
+Bad Cowtractors POJ - 2377 <br/>
+<a data-token="b98823670261e25581ddf697dcd42b3a" href="http://poj.org/problem?id=2377" rel="nofollow">http://poj.org/problem?id=2377</a></p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cmath&gt;</span>
+<span class="hljs-preprocessor">#include &lt;vector&gt;</span>
+<span class="hljs-preprocessor">#include &lt;queue&gt;</span>
+<span class="hljs-preprocessor">#include &lt;stack&gt;</span>
+<span class="hljs-preprocessor">#include &lt;map&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ull;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn=<span class="hljs-number">1e3</span>+<span class="hljs-number">5</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> mod=<span class="hljs-number">1e9</span>+<span class="hljs-number">7</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> INF=<span class="hljs-number">0x3f3f3f</span>;
+
+<span class="hljs-keyword">typedef</span> pair&lt;<span class="hljs-keyword">int</span>,<span class="hljs-keyword">int</span>&gt; P;
+<span class="hljs-stl_container"><span class="hljs-built_in">vector</span>&lt;P&gt;</span> G[maxn];
+<span class="hljs-keyword">bool</span> vis[maxn];
+<span class="hljs-keyword">int</span> n,m;
+<span class="hljs-keyword">int</span> d[maxn];
+
+
+<span class="hljs-keyword">int</span> prim_p(<span class="hljs-keyword">int</span> s){
+    <span class="hljs-keyword">int</span> res=<span class="hljs-number">0</span>;
+    priority_queue&lt;P,<span class="hljs-stl_container"><span class="hljs-built_in">vector</span>&lt;P&gt;</span>,less&lt;P&gt; &gt; que;
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;=n;i++) {
+        d[i]=-INF;
+        vis[i]=<span class="hljs-number">0</span>;   
+    }
+    d[s]=<span class="hljs-number">0</span>;
+    que.push(P(<span class="hljs-number">0</span>,s));
+    <span class="hljs-keyword">while</span>(!que.empty()){
+        P p=que.top();que.pop();
+        <span class="hljs-keyword">int</span> v=p.second;
+        <span class="hljs-keyword">if</span>(vis[v]||d[v]&gt;p.first) <span class="hljs-keyword">continue</span>;
+        vis[v]=<span class="hljs-number">1</span>;
+        res+=d[v];
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;G[v].size();i++){
+            P e=G[v][i];
+            <span class="hljs-keyword">if</span>(d[e.second]&lt;e.first){
+                d[e.second]=e.first;
+                que.push(P(d[e.second],e.second));
+            }
+        }
+    }  
+    <span class="hljs-keyword">return</span> res; 
+}
+
+<span class="hljs-keyword">int</span> main(){
+    <span class="hljs-keyword">int</span> st,ed,dis;
+    <span class="hljs-keyword">while</span>(<span class="hljs-built_in">cin</span>&gt;&gt;n&gt;&gt;m&amp;&amp;n){
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;m;i++){
+            <span class="hljs-built_in">cin</span>&gt;&gt;st&gt;&gt;ed&gt;&gt;dis;
+            G[st].push_back(P(dis,ed));
+            G[ed].push_back(P(dis,st));
+        }
+
+        <span class="hljs-keyword">int</span> ans=prim_p(<span class="hljs-number">1</span>);
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">1</span>;i&lt;=n;i++){<span class="hljs-comment">//注意孤立点判断</span>
+            <span class="hljs-keyword">if</span>(d[i]&lt;<span class="hljs-number">0</span>){
+                 ans=-<span class="hljs-number">1</span>;
+                 <span class="hljs-keyword">break</span>;
+            }
+        }
+        <span class="hljs-keyword">if</span>(ans&lt;=<span class="hljs-number">0</span>) <span class="hljs-built_in">cout</span>&lt;&lt;-<span class="hljs-number">1</span>&lt;&lt;endl;
+        <span class="hljs-keyword">else</span> <span class="hljs-built_in">cout</span>&lt;&lt;ans&lt;&lt;endl;
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+<p>480ms  的确是我没有写好</p>
+<p>例外附一个 Kruskal写的 68ms</p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include&lt;set&gt;</span>
+<span class="hljs-preprocessor">#include&lt;map&gt;</span>
+<span class="hljs-preprocessor">#include&lt;queue&gt;</span>
+<span class="hljs-preprocessor">#include&lt;stack&gt;</span>
+<span class="hljs-preprocessor">#include&lt;bitset&gt;</span>
+<span class="hljs-preprocessor">#include&lt;math.h&gt;</span>
+<span class="hljs-preprocessor">#include&lt;string&gt;</span>
+<span class="hljs-preprocessor">#include&lt;vector&gt;</span>
+<span class="hljs-preprocessor">#include&lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include&lt;cstring&gt;</span>
+<span class="hljs-preprocessor">#include&lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include&lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#define pi acos(-1)</span>
+
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn = <span class="hljs-number">1e6</span>+<span class="hljs-number">5</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> INF = <span class="hljs-number">0x3f3f3f3f</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">double</span> EPS = <span class="hljs-number">1e-10</span>;
+<span class="hljs-keyword">const</span> ll INF_ll = <span class="hljs-number">0x7fffffffffffffff</span>;
+ll mod = <span class="hljs-number">1e9</span>+<span class="hljs-number">7</span>;
+
+<span class="hljs-keyword">int</span> n,m;
+<span class="hljs-keyword">struct</span> node{
+    <span class="hljs-keyword">int</span> u,v;
+    <span class="hljs-keyword">int</span> cost;
+}T[maxn];
+<span class="hljs-keyword">int</span> pre[maxn];
+<span class="hljs-keyword">bool</span> cmp(node a, node b){
+    <span class="hljs-keyword">return</span> a.cost&gt; b.cost;
+}
+<span class="hljs-keyword">int</span> finds(<span class="hljs-keyword">int</span> x)
+{
+    <span class="hljs-keyword">return</span> pre[x] == x?x:pre[x]=finds(pre[x]);
+}
+<span class="hljs-keyword">int</span> unions(<span class="hljs-keyword">int</span> x,<span class="hljs-keyword">int</span> y){
+    <span class="hljs-keyword">int</span> xx1 = finds(x);
+    <span class="hljs-keyword">int</span> yy1 = finds(y);
+
+    <span class="hljs-keyword">if</span>(xx1 == yy1) <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">else</span>{
+        <span class="hljs-keyword">if</span>(xx1 &lt; yy1){
+            pre[yy1] =xx1;
+
+        }
+        <span class="hljs-keyword">else</span> pre[xx1] =yy1;
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+}
+<span class="hljs-keyword">int</span> main()
+{
+    <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d%d"</span>,&amp;n,&amp;m);
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt;= n; i++) pre[i] = i;
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; m ;i++){
+        <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d%d%d"</span>,&amp;T[i].u,&amp;T[i].v,&amp;T[i].cost);
+    }
+    sort(T, T + m ,cmp);
+    ll ans1 = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">int</span> k = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; m ;i++){
+        <span class="hljs-keyword">if</span>(unions(T[i].u,T[i].v)){
+            ans1 += T[i].cost;
+            k++;
+        }
+        <span class="hljs-keyword">if</span>(k == n - <span class="hljs-number">1</span>) <span class="hljs-keyword">break</span>;
+    }
+    <span class="hljs-keyword">int</span> i;
+    <span class="hljs-keyword">for</span>(i=<span class="hljs-number">1</span>;i&lt;=n;i++) {
+    <span class="hljs-comment">//  cout&lt;&lt;finds(i)&lt;&lt;"    "&lt;&lt;finds(1)&lt;&lt;endl;</span>
+        <span class="hljs-keyword">if</span>(finds(i)==finds(<span class="hljs-number">1</span>))
+            {
+                <span class="hljs-keyword">if</span>(i==n) <span class="hljs-built_in">printf</span>(<span class="hljs-string">"%lld\n"</span>,ans1);
+            }
+        <span class="hljs-keyword">else</span> <span class="hljs-keyword">break</span>;
+    }
+    <span class="hljs-keyword">if</span>(i!=n+<span class="hljs-number">1</span>) <span class="hljs-built_in">cout</span>&lt;&lt;-<span class="hljs-number">1</span>&lt;&lt;endl;
+}</code></pre>
+</div>
+</body>
+</html>

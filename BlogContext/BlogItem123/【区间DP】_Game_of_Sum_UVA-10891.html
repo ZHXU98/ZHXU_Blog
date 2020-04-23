@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>【区间DP】_Game_of_Sum_UVA-10891</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<p>题目链接： <br/>
+<a data-token="7220beb9fc95085d3658b71cfea49c95" href="http://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=1832" rel="nofollow">http://uva.onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;page=show_problem&amp;problem=1832</a></p>
+<p>题意： <br/>
+有n个数字排成一条直线，然后有两个小伙伴来玩游戏， 每个小伙伴每次可以从两端（左或右）中的任意一端取走一个或若干个数（获得价值为取走数之和）， 但是他取走的方式一定要让他在游戏结束时价值尽量的高，最头疼的是两个小伙伴都很聪明，所以每一轮两人都将按照对自己最有利的方法去取数字，请你算一下在游戏结束时，先取数的人价值与后取数人价值之差（不要求绝对值）。</p>
+<p>预处理前缀和 <br/>
+每次只能拿最优且在两端取连续个(包括只取一个) <br/>
+dp[i,j] 存此区间可取最大值 <br/>
+在i~j中 找最小的  tmp -&gt;&gt;(dp[i~k]  dp[k~j] I&lt;=k&amp;&amp;k&lt;=l ) <br/>
+sum[I,j]-tmp 便是dp[i~j] 区间最大值</p>
+<p>2*dp[1~n]-sum[n] 最大值减最小值</p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cmath&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn = <span class="hljs-number">205</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> mod = <span class="hljs-number">1e9</span>+<span class="hljs-number">7</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> INF = <span class="hljs-number">0x3f3f3f3f</span>;
+
+<span class="hljs-keyword">int</span> t,n,m;
+<span class="hljs-keyword">int</span> dp[maxn][maxn];
+<span class="hljs-keyword">int</span> sum[maxn];
+
+<span class="hljs-keyword">int</span> main(){
+    <span class="hljs-keyword">while</span>(<span class="hljs-built_in">cin</span>&gt;&gt;n&amp;&amp;n){
+        <span class="hljs-built_in">memset</span>(sum,<span class="hljs-number">0</span>,<span class="hljs-keyword">sizeof</span>(sum));
+        <span class="hljs-built_in">memset</span>(dp,<span class="hljs-number">0</span>,<span class="hljs-keyword">sizeof</span>(dp));
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">1</span>;i&lt;=n;i++) <span class="hljs-built_in">cin</span>&gt;&gt;m,sum[i]=sum[i-<span class="hljs-number">1</span>]+m;
+
+        <span class="hljs-keyword">int</span> tmp=INF;
+
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> len=<span class="hljs-number">0</span>;len&lt;=n;len++){
+            <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;=n-len;i++){
+                <span class="hljs-keyword">int</span> j=i+len;
+                tmp=INF;
+                <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> k=i;k&lt;=j;k++) tmp=min(tmp,dp[i][k]);
+                <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> k=j;k&gt;=i;k--) tmp=min(tmp,dp[k][j]);
+                dp[i][j]=sum[j]-sum[i-<span class="hljs-number">1</span>]-tmp;
+            }
+        }
+
+        <span class="hljs-built_in">cout</span>&lt;&lt;-sum[n]+<span class="hljs-number">2</span>*dp[<span class="hljs-number">1</span>][n]&lt;&lt;endl;
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+} </code></pre>
+</div>
+</body>
+</html>

@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>【计数DP】_Happy_Matt_Friends_2014_北京ICPC</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<p><a data-token="575f9318b4df2f884bd3e64429c8111d" href="http://acm.hdu.edu.cn/showproblem.php?pid=5119" rel="nofollow">http://acm.hdu.edu.cn/showproblem.php?pid=5119</a></p>
+<p>菜啊 <br/>
+计数DP没有看出来 <br/>
+没有看出来。。。。</p>
+<p>H - Happy Matt Friends <br/>
+ HDU - 5119  <br/>
+Matt has N friends. They are playing a game together. </p>
+<p>Each of Matt’s friends has a magic number. In the game, Matt selects some (could be zero) of his friends. If the xor (exclusive-or) sum of the selected friends’magic numbers is no less than M , Matt wins. </p>
+<p>Matt wants to know the number of ways to win. <br/>
+InputThe first line contains only one integer T , which indicates the number of test cases. </p>
+<p>For each test case, the first line contains two integers N, M (1 ≤ N ≤ 40, 0 ≤ M ≤ 10 6). </p>
+<p>In the second line, there are N integers ki (0 ≤ k i ≤ 10 6), indicating the i-th friend’s magic number. OutputFor each test case, output a single line “Case #x: y”, where x is the case number (starting from 1) and y indicates the number of ways where Matt can win. Sample Input  <br/>
+2 <br/>
+3 2 <br/>
+1 2 3 <br/>
+3 3 <br/>
+1 2 3 <br/>
+Sample Output  <br/>
+Case #1: 4 <br/>
+Case #2: 2</p>
+<p>Hint  <br/>
+In the ﬁrst sample, Matt can win by selecting: <br/>
+friend with number 1 and friend with number 2. The xor sum is 3. <br/>
+friend with number 1 and friend with number 3. The xor sum is 2. <br/>
+friend with number 2. The xor sum is 2. <br/>
+friend with number 3. The xor sum is 3. Hence, the answer is 4.</p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cmath&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn = <span class="hljs-number">1</span>&lt;&lt;<span class="hljs-number">20</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> mod = <span class="hljs-number">1e9</span>+<span class="hljs-number">7</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> INF = <span class="hljs-number">0x3f3f3f3f</span>;
+
+<span class="hljs-comment">// 计数dp </span>
+<span class="hljs-comment">// 1e6 20长度 2进制。。 </span>
+<span class="hljs-comment">// 1024*1024 = 1e8+1e3； </span>
+<span class="hljs-comment">// 因为这个性质 a^b=c  c^b=a;</span>
+
+<span class="hljs-comment">// 所以 直接背包计数就可以了 dp[i][j] = dp[i - 1][j] + dp[i - 1][j ^ a[i]]</span>
+
+
+
+<span class="hljs-keyword">int</span> t,n,m;
+ll dp[<span class="hljs-number">3</span>][<span class="hljs-number">1</span>&lt;&lt;<span class="hljs-number">20</span>];
+<span class="hljs-keyword">int</span> num[<span class="hljs-number">45</span>];
+
+<span class="hljs-keyword">int</span> main(){
+    <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d"</span>,&amp;t);
+    <span class="hljs-keyword">int</span> cas=<span class="hljs-number">1</span>;
+    <span class="hljs-keyword">while</span>(t--){
+        <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d %d"</span>,&amp;n,&amp;m);
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">1</span>;i&lt;=n;i++) <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d"</span>,&amp;num[i]);
+        <span class="hljs-built_in">memset</span>(dp,<span class="hljs-number">0</span>,<span class="hljs-keyword">sizeof</span>(dp));
+        dp[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]=<span class="hljs-number">1</span>;
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">1</span>;i&lt;=n;i++){
+            <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> j=<span class="hljs-number">0</span>;j&lt;maxn-<span class="hljs-number">5</span>;j++){
+                dp[i%<span class="hljs-number">2</span>][j]=max(dp[(i)%<span class="hljs-number">2</span>][j],dp[(i-<span class="hljs-number">1</span>)%<span class="hljs-number">2</span>][j^num[i]]+dp[(i-<span class="hljs-number">1</span>)%<span class="hljs-number">2</span>][j]);
+            }
+        }
+        ll ans=<span class="hljs-number">0</span>;
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=m;i&lt;maxn-<span class="hljs-number">5</span>;i++){
+            ans+=dp[n%<span class="hljs-number">2</span>][i];
+        }
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">"Case #%d: %lld\n"</span>,cas++,ans);
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+} </code></pre>
+</div>
+</body>
+</html>

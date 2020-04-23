@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>【几何数学】_Intersection_HDU_-_5120_2014_北京ICPC</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<p>Matt is a big fan of logo design. Recently he falls in love with logo made up by rings. The following figures are some famous examples you may know. </p>
+<p>A ring is a 2-D figure bounded by two circles sharing the common center. The radius for these circles are denoted by r and R (r &lt; R). For more details, refer to the gray part in the illustration below. </p>
+<p>Matt just designed a new logo consisting of two rings with the same size in the 2-D plane. For his interests, Matt would like to know the area of the intersection of these two rings.  <br/>
+Input <br/>
+The first line contains only one integer T (T ≤ 10 5), which indicates the number of test cases. For each test case, the first line contains two integers r, R (0 ≤ r &lt; R ≤ 10). </p>
+<p>Each of the following two lines contains two integers x i, y i (0 ≤ x i, y i ≤ 20) indicating the coordinates of the center of each ring. <br/>
+Output <br/>
+For each test case, output a single line “Case #x: y”, where x is the case number (starting from 1) and y is the area of intersection rounded to 6 decimal places. </p>
+<p>Sample Input <br/>
+2 <br/>
+2 3 <br/>
+0 0 <br/>
+0 0 <br/>
+2 3 <br/>
+0 0 <br/>
+5 0 <br/>
+Sample Output <br/>
+Case #1: 15.707963 <br/>
+Case #2: 2.250778</p>
+<p>给了2个半径。。。 然后2行圆心坐标 <br/>
+求相交圆环的面积</p>
+<p>纯粹数学题</p>
+<p>打错一个字母wa了 3发 醉了醉了  <br/>
+代码丑 见谅 懒得改了</p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cmath&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn = <span class="hljs-number">1</span>&lt;&lt;<span class="hljs-number">20</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> mod = <span class="hljs-number">1e9</span>+<span class="hljs-number">7</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> INF = <span class="hljs-number">0x3f3f3f3f</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">double</span> PI=<span class="hljs-built_in">acos</span>(-<span class="hljs-number">1</span>);
+
+<span class="hljs-keyword">int</span> t,n,m;
+<span class="hljs-keyword">double</span> x1,yy1,x2,yy2;
+<span class="hljs-keyword">double</span> r1,r2;
+
+<span class="hljs-keyword">double</span> ras(<span class="hljs-keyword">int</span> x1,<span class="hljs-keyword">int</span> yy1,<span class="hljs-keyword">int</span> x2,<span class="hljs-keyword">int</span> yy2,<span class="hljs-keyword">int</span> r1,<span class="hljs-keyword">int</span> r2) {
+    <span class="hljs-keyword">double</span> S;
+    <span class="hljs-keyword">double</span> D=<span class="hljs-built_in">sqrt</span>((x1-x2)*(x1-x2)+(yy1-yy2)*(yy1-yy2));
+
+    <span class="hljs-keyword">double</span> R=max(r1,r2);
+    <span class="hljs-keyword">double</span> r=min(r1,r2);
+
+    <span class="hljs-keyword">if</span>(D&gt;=r1+r2) <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">if</span>(D&lt;=R-r) <span class="hljs-keyword">return</span> r*r*PI;
+
+    <span class="hljs-keyword">double</span> Angle_a=<span class="hljs-built_in">acos</span>((D*D+R*R-r*r)/(<span class="hljs-number">2</span>*D*R));
+
+    <span class="hljs-keyword">double</span> Sjia_a=<span class="hljs-built_in">sin</span>(Angle_a)*R*R*<span class="hljs-built_in">cos</span>(Angle_a);
+    <span class="hljs-keyword">double</span> Ssan_a=R*R*Angle_a;
+    <span class="hljs-keyword">double</span> Angle_b=<span class="hljs-built_in">acos</span>((D*D+r*r-R*R)/(<span class="hljs-number">2</span>*D*r));
+    <span class="hljs-keyword">double</span> Sjia_b=<span class="hljs-built_in">sin</span>(Angle_b)*r*r*<span class="hljs-built_in">cos</span>(Angle_b);
+    <span class="hljs-keyword">double</span> Ssan_b=r*r*Angle_b;
+    <span class="hljs-keyword">return</span> Ssan_a-Sjia_a+Ssan_b-Sjia_b;
+}
+
+<span class="hljs-keyword">int</span> main() {
+    <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d"</span>,&amp;t);
+    <span class="hljs-keyword">int</span> cas=<span class="hljs-number">1</span>;
+    <span class="hljs-keyword">while</span>(t--) {
+        <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%lf %lf"</span>,&amp;r1,&amp;r2);
+        <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%lf %lf"</span>,&amp;x1,&amp;yy1);
+        <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%lf %lf"</span>,&amp;x2,&amp;yy2);
+
+        <span class="hljs-keyword">double</span> ans=<span class="hljs-number">0</span>;
+
+        ans+=ras(x1,yy1,x2,yy2,r1,r1);
+
+        ans-=ras(x1,yy1,x2,yy2,r1,r2);
+        ans-=ras(x1,yy1,x2,yy2,r1,r2);
+
+        ans+=ras(x1,yy1,x2,yy2,r2,r2);
+
+        <span class="hljs-keyword">double</span> D=<span class="hljs-built_in">sqrt</span>((x1-x2)*(x1-x2)+(yy1-yy2)*(yy1-yy2));
+        <span class="hljs-keyword">double</span> R=max(r1,r2);
+        <span class="hljs-keyword">double</span> r=min(r1,r2);
+
+        <span class="hljs-keyword">if</span>(D==<span class="hljs-number">0</span>) ans=R*R*PI-r*r*PI;
+
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">"Case #%d: %lf\n"</span>,cas++,ans);
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+</div>
+</body>
+</html>

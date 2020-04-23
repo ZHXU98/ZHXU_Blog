@@ -1,0 +1,62 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>【LIS_dp】Wooden_Sticks_POJ_-_1065_思路</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<p><a data-token="e59dc8e6182461b7f39f956099ca23e1" href="http://poj.org/problem?id=1065" rel="nofollow">http://poj.org/problem?id=1065</a></p>
+<blockquote>
+<p>题意： 锯木机 开机首先要了1分钟  之后据木头 如果木头的长宽均小于等于上一块 就不需要重启 不然重启又花费一分钟</p>
+<p>问最短 花费时间</p>
+<p>思路：看了题解才明白可以转LIS 最长上升子序列</p>
+<p>首先 按照长度 由大到小排序 相同时 按照宽度由大到小排序  </p>
+<p>鸽笼原理 形成LIS长度的 递减序列 // 难以想象</p>
+</blockquote>
+<pre class="has"><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;cstdio&gt;
+#include &lt;cmath&gt;
+#include &lt;algorithm&gt;
+#include &lt;cstring&gt;
+#include &lt;map&gt;
+#include &lt;queue&gt;
+#include &lt;set&gt;
+#include &lt;stack&gt;
+#include &lt;list&gt; 
+using namespace std;
+typedef long long ll;
+
+const int maxn =5000+5;
+const int mod = 1e9+7;
+const int INF = 0x3f3f3f3f;
+const double PI=acos(-1.0);
+
+struct node{
+	int h,w;
+	bool operator&lt;(const node &amp;a) const {return (h==a.h&amp;&amp;w&gt;a.w)||h&gt;a.h;}
+}sticks[maxn];
+
+int dp[maxn],a[maxn];
+
+int main(){
+	int t,n;
+	cin&gt;&gt;t;
+	while(t--){
+		memset(dp,INF,sizeof(dp));
+		cin&gt;&gt;n;
+		for(int i=0;i&lt;n;i++) cin&gt;&gt;sticks[i].h&gt;&gt;sticks[i].w;
+		sort(sticks,sticks+n);
+		for(int i=0;i&lt;n;i++) a[i]=sticks[i].w;
+		for(int i=0;i&lt;n;i++)
+			*lower_bound(dp,dp+n,a[i])=a[i];
+	//	for(int i=0;i&lt;n;i++) cout&lt;&lt;a[i]&lt;&lt;"  ";cout&lt;&lt;endl;	
+		printf("%d\n",lower_bound(dp,dp+n,INF)-dp);
+	}
+	return 0;
+} </code></pre>
+<p> </p>
+</div>
+</body>
+</html>

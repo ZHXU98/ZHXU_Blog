@@ -1,0 +1,256 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>高级树状数组——区间修改区间查询、二维树状数组</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<h1><a id="_0"></a>“高级”数据结构——树状数组！</h1>
+<p>※本文一切代码未经编译，不保证正确性，如发现问题，欢迎指正！</p>
+<ol>
+<li>单点修改 + 区间查询<br/>
+最简单的树状数组就是这样的：</li>
+</ol>
+<pre><code class="prism language-c"><span class="token keyword">void</span> <span class="token function">add</span><span class="token punctuation">(</span><span class="token keyword">int</span> p<span class="token punctuation">,</span> <span class="token keyword">int</span> x<span class="token punctuation">)</span><span class="token punctuation">{</span> <span class="token comment">//给位置p增加x</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span>p <span class="token operator">&lt;=</span> n<span class="token punctuation">)</span> sum<span class="token punctuation">[</span>p<span class="token punctuation">]</span> <span class="token operator">+</span><span class="token operator">=</span> x<span class="token punctuation">,</span> p <span class="token operator">+</span><span class="token operator">=</span> p <span class="token operator">&amp;</span> <span class="token operator">-</span>p<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">int</span> <span class="token function">ask</span><span class="token punctuation">(</span><span class="token keyword">int</span> p<span class="token punctuation">)</span><span class="token punctuation">{</span> <span class="token comment">//求位置p的前缀和</span>
+    <span class="token keyword">int</span> res <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span>p<span class="token punctuation">)</span> res <span class="token operator">+</span><span class="token operator">=</span> sum<span class="token punctuation">[</span>p<span class="token punctuation">]</span><span class="token punctuation">,</span> p <span class="token operator">-</span><span class="token operator">=</span> p <span class="token operator">&amp;</span> <span class="token operator">-</span>p<span class="token punctuation">;</span>
+    <span class="token keyword">return</span> res<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">int</span> <span class="token function">range_ask</span><span class="token punctuation">(</span><span class="token keyword">int</span> l<span class="token punctuation">,</span> <span class="token keyword">int</span> r<span class="token punctuation">)</span><span class="token punctuation">{</span> <span class="token comment">//区间求和</span>
+    <span class="token keyword">return</span> <span class="token function">ask</span><span class="token punctuation">(</span>r<span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token function">ask</span><span class="token punctuation">(</span>l <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<ol start="2">
+<li>区间修改 + 单点查询<br/>
+通过“差分”（就是记录数组中每个元素与前一个元素的差），可以把这个问题转化为问题1。</li>
+</ol>
+<p>查询<br/>
+设原数组为a[i], 设数组d[i]=a[i]−a<a data-token="8eca337a624c5b6ba28c70d3e11912a1" href="a%5B0%5D=0" rel="nofollow">i−1</a>，则 a[i]=∑ij=1d[j]，可以通过求d[i]的前缀和查询。</p>
+<p>修改<br/>
+当给区间[l,r]加上x的时候，a[l] 与前一个元素 a[l−1] 的差增加了x，a[r+1] 与 a[r] 的差减少了x。根据d[i]数组的定义，只需给d[l] 加上 x, 给d[r+1] 减去 x 即可。</p>
+<pre><code class="prism language-c"><span class="token keyword">void</span> <span class="token function">add</span><span class="token punctuation">(</span><span class="token keyword">int</span> p<span class="token punctuation">,</span> <span class="token keyword">int</span> x<span class="token punctuation">)</span><span class="token punctuation">{</span> <span class="token comment">//这个函数用来在树状数组中直接修改</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span>p <span class="token operator">&lt;=</span> n<span class="token punctuation">)</span> sum<span class="token punctuation">[</span>p<span class="token punctuation">]</span> <span class="token operator">+</span><span class="token operator">=</span> x<span class="token punctuation">,</span> p <span class="token operator">+</span><span class="token operator">=</span> p <span class="token operator">&amp;</span> <span class="token operator">-</span>p<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">void</span> <span class="token function">range_add</span><span class="token punctuation">(</span><span class="token keyword">int</span> l<span class="token punctuation">,</span> <span class="token keyword">int</span> r<span class="token punctuation">,</span> <span class="token keyword">int</span> x<span class="token punctuation">)</span><span class="token punctuation">{</span> <span class="token comment">//给区间[l, r]加上x</span>
+    <span class="token function">add</span><span class="token punctuation">(</span>l<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">add</span><span class="token punctuation">(</span>r <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token operator">-</span>x<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">int</span> <span class="token function">ask</span><span class="token punctuation">(</span><span class="token keyword">int</span> p<span class="token punctuation">)</span><span class="token punctuation">{</span> <span class="token comment">//单点查询</span>
+    <span class="token keyword">int</span> res <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span>p<span class="token punctuation">)</span> res <span class="token operator">+</span><span class="token operator">=</span> sum<span class="token punctuation">[</span>p<span class="token punctuation">]</span><span class="token punctuation">,</span> p <span class="token operator">-</span><span class="token operator">=</span> p <span class="token operator">&amp;</span> <span class="token operator">-</span>p<span class="token punctuation">;</span>
+    <span class="token keyword">return</span> res<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<ol start="3">
+<li>区间修改 + 区间查询<br/>
+这是最常用的部分，也是用线段树写着最麻烦的部分——但是现在我们有了树状数组！</li>
+</ol>
+<p>怎么求呢？我们基于问题2的“差分”思路，考虑一下如何在问题2构建的树状数组中求前缀和：</p>
+<p>位置p的前缀和 =<br/>
+∑i=1pa[i]=∑i=1p∑j=1id[j]</p>
+<p>在等式最右侧的式子∑pi=1∑ij=1d[j]中，d[1] 被用了p次，d[2]被用了p−1次……那么我们可以写出：</p>
+<p>位置p的前缀和 =<br/>
+∑i=1p∑j=1id[j]=∑i=1pd[i]∗(p−i+1)=(p+1)∗∑i=1pd[i]−∑i=1pd[i]∗i</p>
+<p>那么我们可以维护两个数组的前缀和：<br/>
+一个数组是 sum1[i]=d[i]，<br/>
+另一个数组是 sum2[i]=d[i]∗i。</p>
+<p>查询<br/>
+位置p的前缀和即： (p + 1) * sum1数组中p的前缀和 - sum2数组中p的前缀和。</p>
+<p>区间[l, r]的和即：位置r的前缀和 - 位置l的前缀和。</p>
+<p>修改<br/>
+对于sum1数组的修改同问题2中对d数组的修改。</p>
+<p>对于sum2数组的修改也类似，我们给 sum2[l] 加上 l * x，给 sum2[r + 1] 减去 (r + 1) * x。</p>
+<pre><code class="prism language-c"><span class="token keyword">void</span> <span class="token function">add</span><span class="token punctuation">(</span>ll p<span class="token punctuation">,</span> ll x<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> p<span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> n<span class="token punctuation">;</span> i <span class="token operator">+</span><span class="token operator">=</span> i <span class="token operator">&amp;</span> <span class="token operator">-</span>i<span class="token punctuation">)</span>
+        sum1<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">+</span><span class="token operator">=</span> x<span class="token punctuation">,</span> sum2<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">+</span><span class="token operator">=</span> x <span class="token operator">*</span> p<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">void</span> <span class="token function">range_add</span><span class="token punctuation">(</span>ll l<span class="token punctuation">,</span> ll r<span class="token punctuation">,</span> ll x<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token function">add</span><span class="token punctuation">(</span>l<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">add</span><span class="token punctuation">(</span>r <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token operator">-</span>x<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+ll <span class="token function">ask</span><span class="token punctuation">(</span>ll p<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    ll res <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> p<span class="token punctuation">;</span> i<span class="token punctuation">;</span> i <span class="token operator">-</span><span class="token operator">=</span> i <span class="token operator">&amp;</span> <span class="token operator">-</span>i<span class="token punctuation">)</span>
+        res <span class="token operator">+</span><span class="token operator">=</span> <span class="token punctuation">(</span>p <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">*</span> sum1<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">-</span> sum2<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> res<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+ll <span class="token function">range_ask</span><span class="token punctuation">(</span>ll l<span class="token punctuation">,</span> ll r<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token function">ask</span><span class="token punctuation">(</span>r<span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token function">ask</span><span class="token punctuation">(</span>l <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>用这个做区间修改区间求和的题，无论是时间上还是空间上都比带lazy标记的线段树要优。</p>
+<ol start="4">
+<li>二维树状数组<br/>
+我们已经学会了对于序列的常用操作，那么我们不由得想到（谁会想到啊喂）……能不能把类似的操作应用到矩阵上呢？这时候我们就要写二维树状数组了！</li>
+</ol>
+<p>在一维树状数组中，tree[x]（树状数组中的那个“数组”）记录的是右端点为x、长度为lowbit(x)的区间的区间和。<br/>
+那么在二维树状数组中，可以类似地定义tree[x][y]记录的是右下角为(x, y)，高为lowbit(x), 宽为 lowbit(y)的区间的区间和。</p>
+<p>单点修改 + 区间查询</p>
+<pre><code class="prism language-c"><span class="token keyword">void</span> <span class="token function">add</span><span class="token punctuation">(</span><span class="token keyword">int</span> x<span class="token punctuation">,</span> <span class="token keyword">int</span> y<span class="token punctuation">,</span> <span class="token keyword">int</span> z<span class="token punctuation">)</span><span class="token punctuation">{</span> <span class="token comment">//将点(x, y)加上z</span>
+    <span class="token keyword">int</span> memo_y <span class="token operator">=</span> y<span class="token punctuation">;</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span>x <span class="token operator">&lt;=</span> n<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        y <span class="token operator">=</span> memo_y<span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>y <span class="token operator">&lt;=</span> n<span class="token punctuation">)</span>
+            tree<span class="token punctuation">[</span>x<span class="token punctuation">]</span><span class="token punctuation">[</span>y<span class="token punctuation">]</span> <span class="token operator">+</span><span class="token operator">=</span> z<span class="token punctuation">,</span> y <span class="token operator">+</span><span class="token operator">=</span> y <span class="token operator">&amp;</span> <span class="token operator">-</span>y<span class="token punctuation">;</span>
+        x <span class="token operator">+</span><span class="token operator">=</span> x <span class="token operator">&amp;</span> <span class="token operator">-</span>x<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">void</span> <span class="token function">ask</span><span class="token punctuation">(</span><span class="token keyword">int</span> x<span class="token punctuation">,</span> <span class="token keyword">int</span> y<span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token comment">//求左上角为(1,1)右下角为(x,y) 的矩阵和</span>
+    <span class="token keyword">int</span> res <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> memo_y <span class="token operator">=</span> y<span class="token punctuation">;</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        y <span class="token operator">=</span> memo_y<span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>y<span class="token punctuation">)</span>
+            res <span class="token operator">+</span><span class="token operator">=</span> tree<span class="token punctuation">[</span>x<span class="token punctuation">]</span><span class="token punctuation">[</span>y<span class="token punctuation">]</span><span class="token punctuation">,</span> y <span class="token operator">-</span><span class="token operator">=</span> y <span class="token operator">&amp;</span> <span class="token operator">-</span>y<span class="token punctuation">;</span>
+        x <span class="token operator">-</span><span class="token operator">=</span> x <span class="token operator">&amp;</span> <span class="token operator">-</span>x<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>区间修改 + 单点查询<br/>
+我们对于一维数组进行差分，是为了使差分数组前缀和等于原数组对应位置的元素。</p>
+<p>那么如何对二维数组进行差分呢？可以针对二维前缀和的求法来设计方案。</p>
+<p>二维前缀和：<br/>
+sum[i][j]=sum[i−1][j]+sum[i][j−1]−sum[i−1][j−1]+a[i][j]</p>
+<p>那么我们可以令差分数组d[i][j] 表示 a[i][j] 与 a[i−1][j]+a[i][j−1]−a[i−1][j−1] 的差。</p>
+<p>例如下面这个矩阵</p>
+<p>1  4  8<br/>
+6  7  2<br/>
+3  9  5<br/>
+对应的差分数组就是</p>
+<p>1  3  4<br/>
+5 -2 -9<br/>
+-3  5  1<br/>
+当我们想要将一个矩阵加上x时，怎么做呢？<br/>
+下面是给最中间的3*3矩阵加上x时，差分数组的变化：</p>
+<p>0  0  0  0  0<br/>
+0 +x  0  0 -x<br/>
+0  0  0  0  0<br/>
+0  0  0  0  0<br/>
+0 -x  0  0 +x<br/>
+这样给修改差分，造成的效果就是：</p>
+<p>0  0  0  0  0<br/>
+0  x  x  x  0<br/>
+0  x  x  x  0<br/>
+0  x  x  x  0<br/>
+0  0  0  0  0<br/>
+那么我们开始写代码吧！</p>
+<pre><code class="prism language-c"><span class="token keyword">void</span> <span class="token function">add</span><span class="token punctuation">(</span><span class="token keyword">int</span> x<span class="token punctuation">,</span> <span class="token keyword">int</span> y<span class="token punctuation">,</span> <span class="token keyword">int</span> z<span class="token punctuation">)</span><span class="token punctuation">{</span> 
+    <span class="token keyword">int</span> memo_y <span class="token operator">=</span> y<span class="token punctuation">;</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span>x <span class="token operator">&lt;=</span> n<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        y <span class="token operator">=</span> memo_y<span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>y <span class="token operator">&lt;=</span> n<span class="token punctuation">)</span>
+            tree<span class="token punctuation">[</span>x<span class="token punctuation">]</span><span class="token punctuation">[</span>y<span class="token punctuation">]</span> <span class="token operator">+</span><span class="token operator">=</span> z<span class="token punctuation">,</span> y <span class="token operator">+</span><span class="token operator">=</span> y <span class="token operator">&amp;</span> <span class="token operator">-</span>y<span class="token punctuation">;</span>
+        x <span class="token operator">+</span><span class="token operator">=</span> x <span class="token operator">&amp;</span> <span class="token operator">-</span>x<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">void</span> <span class="token function">range_add</span><span class="token punctuation">(</span><span class="token keyword">int</span> xa<span class="token punctuation">,</span> <span class="token keyword">int</span> ya<span class="token punctuation">,</span> <span class="token keyword">int</span> xb<span class="token punctuation">,</span> <span class="token keyword">int</span> yb<span class="token punctuation">,</span> <span class="token keyword">int</span> z<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token function">add</span><span class="token punctuation">(</span>xa<span class="token punctuation">,</span> ya<span class="token punctuation">,</span> z<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">add</span><span class="token punctuation">(</span>xa<span class="token punctuation">,</span> yb <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token operator">-</span>z<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">add</span><span class="token punctuation">(</span>xb <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> ya<span class="token punctuation">,</span> <span class="token operator">-</span>z<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">add</span><span class="token punctuation">(</span>xb <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> yb <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> z<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">void</span> <span class="token function">ask</span><span class="token punctuation">(</span><span class="token keyword">int</span> x<span class="token punctuation">,</span> <span class="token keyword">int</span> y<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">int</span> res <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> memo_y <span class="token operator">=</span> y<span class="token punctuation">;</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        y <span class="token operator">=</span> memo_y<span class="token punctuation">;</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>y<span class="token punctuation">)</span>
+            res <span class="token operator">+</span><span class="token operator">=</span> tree<span class="token punctuation">[</span>x<span class="token punctuation">]</span><span class="token punctuation">[</span>y<span class="token punctuation">]</span><span class="token punctuation">,</span> y <span class="token operator">-</span><span class="token operator">=</span> y <span class="token operator">&amp;</span> <span class="token operator">-</span>y<span class="token punctuation">;</span>
+        x <span class="token operator">-</span><span class="token operator">=</span> x <span class="token operator">&amp;</span> <span class="token operator">-</span>x<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>区间修改 + 区间查询<br/>
+类比之前一维数组的区间修改区间查询，下面这个式子表示的是点(x, y)的二维前缀和：</p>
+<p>∑i=1x∑j=1y∑k=1i∑h=1jd[h][k]<br/>
+(d[h][k]为点(h, k)对应的“二维差分”(同上题))</p>
+<p>这个式子炒鸡复杂( O(n4) 复杂度！)，但利用树状数组，我们可以把它优化到 O(log2n)！</p>
+<p>首先，类比一维数组，统计一下每个d[h][k]出现过多少次。d[1][1]出现了x∗y次，d[1][2]出现了x∗(y−1)次……d[h][k] 出现了 (x−h+1)∗(y−k+1) 次。</p>
+<p>那么这个式子就可以写成：</p>
+<p>∑i=1x∑j=1yd[i][j]∗(x+1−i)∗(y+1−j)</p>
+<p>把这个式子展开，就得到：</p>
+<p>(x+1)∗(y+1)∗∑i=1x∑j=1yd[i][j]</p>
+<p>−(y+1)∗∑i=1x∑j=1yd[i][j]∗i</p>
+<p>−(x+1)∗∑i=1x∑j=1yd[i][j]∗j</p>
+<p>+∑i=1x∑j=1yd[i][j]∗i∗j</p>
+<p>那么我们要开四个树状数组，分别维护：</p>
+<p>d[i][j],d[i][j]∗i,d[i][j]∗j,d[i][j]∗i∗j</p>
+<p>这样就完成了！</p>
+<pre><code class="prism language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;cstdio&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;cmath&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;cstring&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;algorithm&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;iostream&gt;</span></span>
+using namespace std<span class="token punctuation">;</span>
+<span class="token keyword">typedef</span> <span class="token keyword">long</span> <span class="token keyword">long</span> ll<span class="token punctuation">;</span>
+ll <span class="token function">read</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">char</span> c<span class="token punctuation">;</span> bool op <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span><span class="token punctuation">(</span>c <span class="token operator">=</span> <span class="token function">getchar</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token string">'0'</span> <span class="token operator">||</span> c <span class="token operator">&gt;</span> <span class="token string">'9'</span><span class="token punctuation">)</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>c <span class="token operator">==</span> <span class="token string">'-'</span><span class="token punctuation">)</span> op <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    ll res <span class="token operator">=</span> c <span class="token operator">-</span> <span class="token string">'0'</span><span class="token punctuation">;</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span><span class="token punctuation">(</span>c <span class="token operator">=</span> <span class="token function">getchar</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">&gt;=</span> <span class="token string">'0'</span> <span class="token operator">&amp;&amp;</span> c <span class="token operator">&lt;=</span> <span class="token string">'9'</span><span class="token punctuation">)</span>
+        res <span class="token operator">=</span> res <span class="token operator">*</span> <span class="token number">10</span> <span class="token operator">+</span> c <span class="token operator">-</span> <span class="token string">'0'</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> op <span class="token operator">?</span> <span class="token operator">-</span>res <span class="token punctuation">:</span> res<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">const</span> <span class="token keyword">int</span> N <span class="token operator">=</span> <span class="token number">205</span><span class="token punctuation">;</span>
+ll n<span class="token punctuation">,</span> m<span class="token punctuation">,</span> Q<span class="token punctuation">;</span>
+ll t1<span class="token punctuation">[</span>N<span class="token punctuation">]</span><span class="token punctuation">[</span>N<span class="token punctuation">]</span><span class="token punctuation">,</span> t2<span class="token punctuation">[</span>N<span class="token punctuation">]</span><span class="token punctuation">[</span>N<span class="token punctuation">]</span><span class="token punctuation">,</span> t3<span class="token punctuation">[</span>N<span class="token punctuation">]</span><span class="token punctuation">[</span>N<span class="token punctuation">]</span><span class="token punctuation">,</span> t4<span class="token punctuation">[</span>N<span class="token punctuation">]</span><span class="token punctuation">[</span>N<span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token keyword">void</span> <span class="token function">add</span><span class="token punctuation">(</span>ll x<span class="token punctuation">,</span> ll y<span class="token punctuation">,</span> ll z<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> X <span class="token operator">=</span> x<span class="token punctuation">;</span> X <span class="token operator">&lt;=</span> n<span class="token punctuation">;</span> X <span class="token operator">+</span><span class="token operator">=</span> X <span class="token operator">&amp;</span> <span class="token operator">-</span>X<span class="token punctuation">)</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> Y <span class="token operator">=</span> y<span class="token punctuation">;</span> Y <span class="token operator">&lt;=</span> m<span class="token punctuation">;</span> Y <span class="token operator">+</span><span class="token operator">=</span> Y <span class="token operator">&amp;</span> <span class="token operator">-</span>Y<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            t1<span class="token punctuation">[</span>X<span class="token punctuation">]</span><span class="token punctuation">[</span>Y<span class="token punctuation">]</span> <span class="token operator">+</span><span class="token operator">=</span> z<span class="token punctuation">;</span>
+            t2<span class="token punctuation">[</span>X<span class="token punctuation">]</span><span class="token punctuation">[</span>Y<span class="token punctuation">]</span> <span class="token operator">+</span><span class="token operator">=</span> z <span class="token operator">*</span> x<span class="token punctuation">;</span>
+            t3<span class="token punctuation">[</span>X<span class="token punctuation">]</span><span class="token punctuation">[</span>Y<span class="token punctuation">]</span> <span class="token operator">+</span><span class="token operator">=</span> z <span class="token operator">*</span> y<span class="token punctuation">;</span>
+            t4<span class="token punctuation">[</span>X<span class="token punctuation">]</span><span class="token punctuation">[</span>Y<span class="token punctuation">]</span> <span class="token operator">+</span><span class="token operator">=</span> z <span class="token operator">*</span> x <span class="token operator">*</span> y<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">void</span> <span class="token function">range_add</span><span class="token punctuation">(</span>ll xa<span class="token punctuation">,</span> ll ya<span class="token punctuation">,</span> ll xb<span class="token punctuation">,</span> ll yb<span class="token punctuation">,</span> ll z<span class="token punctuation">)</span><span class="token punctuation">{</span> <span class="token comment">//(xa, ya) 到 (xb, yb) 的矩形</span>
+    <span class="token function">add</span><span class="token punctuation">(</span>xa<span class="token punctuation">,</span> ya<span class="token punctuation">,</span> z<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">add</span><span class="token punctuation">(</span>xa<span class="token punctuation">,</span> yb <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token operator">-</span>z<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">add</span><span class="token punctuation">(</span>xb <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> ya<span class="token punctuation">,</span> <span class="token operator">-</span>z<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">add</span><span class="token punctuation">(</span>xb <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> yb <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> z<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+ll <span class="token function">ask</span><span class="token punctuation">(</span>ll x<span class="token punctuation">,</span> ll y<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    ll res <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> x<span class="token punctuation">;</span> i<span class="token punctuation">;</span> i <span class="token operator">-</span><span class="token operator">=</span> i <span class="token operator">&amp;</span> <span class="token operator">-</span>i<span class="token punctuation">)</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> y<span class="token punctuation">;</span> j<span class="token punctuation">;</span> j <span class="token operator">-</span><span class="token operator">=</span> j <span class="token operator">&amp;</span> <span class="token operator">-</span>j<span class="token punctuation">)</span>
+            res <span class="token operator">+</span><span class="token operator">=</span> <span class="token punctuation">(</span>x <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span>y <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">*</span> t1<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">[</span>j<span class="token punctuation">]</span>
+                <span class="token operator">-</span> <span class="token punctuation">(</span>y <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">*</span> t2<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">[</span>j<span class="token punctuation">]</span>
+                <span class="token operator">-</span> <span class="token punctuation">(</span>x <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">*</span> t3<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">[</span>j<span class="token punctuation">]</span>
+                <span class="token operator">+</span> t4<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> res<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+ll <span class="token function">range_ask</span><span class="token punctuation">(</span>ll xa<span class="token punctuation">,</span> ll ya<span class="token punctuation">,</span> ll xb<span class="token punctuation">,</span> ll yb<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token function">ask</span><span class="token punctuation">(</span>xb<span class="token punctuation">,</span> yb<span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token function">ask</span><span class="token punctuation">(</span>xb<span class="token punctuation">,</span> ya <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token function">ask</span><span class="token punctuation">(</span>xa <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">,</span> yb<span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token function">ask</span><span class="token punctuation">(</span>xa <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">,</span> ya <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    n <span class="token operator">=</span> <span class="token function">read</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> m <span class="token operator">=</span> <span class="token function">read</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> Q <span class="token operator">=</span> <span class="token function">read</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> n<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> j <span class="token operator">&lt;=</span> m<span class="token punctuation">;</span> j<span class="token operator">++</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            ll z <span class="token operator">=</span> <span class="token function">read</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">range_add</span><span class="token punctuation">(</span>i<span class="token punctuation">,</span> j<span class="token punctuation">,</span> i<span class="token punctuation">,</span> j<span class="token punctuation">,</span> z<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">while</span><span class="token punctuation">(</span>Q<span class="token operator">--</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        ll ya <span class="token operator">=</span> <span class="token function">read</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> xa <span class="token operator">=</span> <span class="token function">read</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> yb <span class="token operator">=</span> <span class="token function">read</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> xb <span class="token operator">=</span> <span class="token function">read</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> z <span class="token operator">=</span> <span class="token function">read</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> a <span class="token operator">=</span> <span class="token function">read</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">range_ask</span><span class="token punctuation">(</span>xa<span class="token punctuation">,</span> ya<span class="token punctuation">,</span> xb<span class="token punctuation">,</span> yb<span class="token punctuation">)</span> <span class="token operator">&lt;</span> z <span class="token operator">*</span> <span class="token punctuation">(</span>xb <span class="token operator">-</span> xa <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span>yb <span class="token operator">-</span> ya <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+            <span class="token function">range_add</span><span class="token punctuation">(</span>xa<span class="token punctuation">,</span> ya<span class="token punctuation">,</span> xb<span class="token punctuation">,</span> yb<span class="token punctuation">,</span> a<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> n<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> j <span class="token operator">&lt;=</span> m<span class="token punctuation">;</span> j<span class="token operator">++</span><span class="token punctuation">)</span>
+            <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"%lld "</span><span class="token punctuation">,</span> <span class="token function">range_ask</span><span class="token punctuation">(</span>i<span class="token punctuation">,</span> j<span class="token punctuation">,</span> i<span class="token punctuation">,</span> j<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">putchar</span><span class="token punctuation">(</span><span class="token string">'\n'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>本文作者：胡小兔<br/>
+博客地址：http://rabbithu.cnblogs.com</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>【区间dp】_Dire_Wolf_HDU_-_5115_2014-北京ICPC</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<p>区间DP 算是裸板吧  <br/>
+这次求的是最小值 </p>
+<p>题目链接：<a data-token="5d0acd0ff82b661f1af4bf79ee0d11a2" href="http://acm.hdu.edu.cn/showproblem.php?pid=5115" rel="nofollow">http://acm.hdu.edu.cn/showproblem.php?pid=5115</a>;</p>
+<p>题目大意：总共有N只狼排成一排，每只狼都有一个基础攻击力ai，以及被击杀后可给别的狼提供的攻击力bi（一只狼被攻击的话，它相邻的狼会为它提供额外的攻击力bi），你击杀一只狼都会减少与这只狼攻击力加上相邻的狼提供的额外的攻击力的和的生命值，问如果要将全部狼都击杀，你最少需要减少多少生命值。</p>
+<p>枚举区间长度与起点，求出终点，然后枚举起点与终点之间的点。dp[i][j]为杀死i到j的狼所受到的伤害，然后枚举k作为最后一只被杀死的狼，此时受到的伤害为attack[k]+extra[i-1]+extra[j+1]，得到状态转移方程为： <br/>
+dp[i][j] = min(dp[i][j] , dp[i][k - 1] + dp[k + 1][j] + base[k] + extra[i - 1] + extra[j + 1]); <br/>
+以K为分割点。。</p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cmath&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn = <span class="hljs-number">205</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> mod = <span class="hljs-number">1e9</span>+<span class="hljs-number">7</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> INF = <span class="hljs-number">0x3f3f3f3f</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">double</span> PI=<span class="hljs-built_in">acos</span>(-<span class="hljs-number">1</span>);
+
+<span class="hljs-keyword">int</span> n,m,t;
+<span class="hljs-keyword">int</span> dp[maxn][maxn];
+<span class="hljs-keyword">int</span> attack[maxn];
+<span class="hljs-keyword">int</span> extra[maxn];
+
+<span class="hljs-keyword">int</span> main() {
+    <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d"</span>,&amp;t);
+    <span class="hljs-keyword">int</span> cas=<span class="hljs-number">1</span>;
+    <span class="hljs-keyword">while</span>(t--){
+        <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d"</span>,&amp;n);
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">1</span>;i&lt;=n;i++) <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d"</span>,&amp;attack[i]);
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">1</span>;i&lt;=n;i++) <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d"</span>,&amp;extra[i]);
+        attack[<span class="hljs-number">0</span>]=attack[n+<span class="hljs-number">1</span>]=extra[<span class="hljs-number">0</span>]=extra[n+<span class="hljs-number">1</span>]=<span class="hljs-number">0</span>;
+
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">1</span>;i&lt;=n;i++){
+            <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> j=i;j&lt;=n;j++){
+                dp[i][j]=INF;
+            }<span class="hljs-comment">// i从1到n-len 这样每次用k分割更新左到右 区间最小值</span>
+        }<span class="hljs-comment">// </span>
+
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> len=<span class="hljs-number">0</span>;len&lt;=n;len++){
+            <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">1</span>;i&lt;=n-len;i++){
+                <span class="hljs-keyword">int</span> j=i+len;
+                <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> k=i;k&lt;=j;k++){
+                    dp[i][j]=min(dp[i][j],dp[i][k-<span class="hljs-number">1</span>]+dp[k+<span class="hljs-number">1</span>][j]+attack[k]+extra[i-<span class="hljs-number">1</span>]+extra[j+<span class="hljs-number">1</span>]);
+                }
+            }
+        }
+
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">"Case #%d: %d\n"</span>,cas++,dp[<span class="hljs-number">1</span>][n]);
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+</div>
+</body>
+</html>

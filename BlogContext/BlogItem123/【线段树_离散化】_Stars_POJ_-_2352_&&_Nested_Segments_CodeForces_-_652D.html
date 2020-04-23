@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>【线段树_离散化】_Stars_POJ_-_2352_&&_Nested_Segments_CodeForces_-_652D</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<p>友情链接 <a data-token="b6a53c3aa501a1a0f732b05d3599f54c" href="https://blog.csdn.net/weixin_42754600/article/details/81940760" rel="nofollow">https://blog.csdn.net/weixin_42754600/article/details/81940760</a></p>
+<p>Stars POJ - 2352 <br/>
+<a data-token="a7b18259ff6313bad8ad4da9d17d51d2" href="http://poj.org/problem?id=2352" rel="nofollow">http://poj.org/problem?id=2352</a> <br/>
+题意 给了一堆星星坐标 （x，y）数他左下有多少星星  <br/>
+输入 时注意 是按一层一层来的 先把第一层 由x从小到大排完 进入下一个高点的y层 <br/>
+5 <br/>
+1 1 <br/>
+5 1 <br/>
+7 1 <br/>
+3 3 <br/>
+5 5 <br/>
+输出 <br/>
+1 <br/>
+2 <br/>
+1 <br/>
+1 <br/>
+0 <br/>
+左下角那个块区有几个星星 同时按升序输出左下块区同样数量的有几个  <br/>
+ps从0开始 最高n-1数量 因为不包括自己</p>
+<p>可以考虑线段树 输入时 查询1~x点可区间和 之后 x位置+1 <br/>
+因为是一层一层输入的 同时是x升序 所以这样就可以访问到每个点左下角有几个 <br/>
+就跟 堆玩了一层方块 进入下一层 然后每次数 左下包括左边 能有几个一样 数据较小  <br/>
+下一题数据量大点 不过方法还是一样的</p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cmath&gt;</span>
+<span class="hljs-preprocessor">#include &lt;vector&gt;</span>
+<span class="hljs-preprocessor">#include &lt;queue&gt;</span>
+<span class="hljs-preprocessor">#include &lt;stack&gt;</span>
+<span class="hljs-preprocessor">#include &lt;map&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn=<span class="hljs-number">15000</span>+<span class="hljs-number">5</span>;
+<span class="hljs-keyword">const</span> ll mod=<span class="hljs-number">1e9</span>+<span class="hljs-number">9</span>;
+<span class="hljs-keyword">int</span> x,y;
+<span class="hljs-keyword">int</span> tree[(<span class="hljs-number">32000</span>+<span class="hljs-number">10</span>)&lt;&lt;<span class="hljs-number">2</span>];
+<span class="hljs-keyword">int</span> ans[maxn];
+
+<span class="hljs-keyword">void</span> update(<span class="hljs-keyword">int</span> L,<span class="hljs-keyword">int</span> l,<span class="hljs-keyword">int</span> r,<span class="hljs-keyword">int</span> rt){
+    <span class="hljs-keyword">if</span>(l==r){
+        tree[rt]++; <span class="hljs-comment">//同下一个注释</span>
+        <span class="hljs-keyword">return</span> ;
+    }
+    <span class="hljs-keyword">int</span> m=(l+r)&gt;&gt;<span class="hljs-number">1</span>;
+    <span class="hljs-keyword">if</span>(L&lt;=m) update(L,l,m,rt&lt;&lt;<span class="hljs-number">1</span>);
+    <span class="hljs-keyword">else</span> update(L,m+<span class="hljs-number">1</span>,r,rt&lt;&lt;<span class="hljs-number">1</span>|<span class="hljs-number">1</span>);
+
+    tree[rt]++;<span class="hljs-comment">// 其实 只要在这函数第一行写个这就ok了</span>
+}
+
+<span class="hljs-keyword">int</span> query(<span class="hljs-keyword">int</span> L,<span class="hljs-keyword">int</span> R,<span class="hljs-keyword">int</span> l,<span class="hljs-keyword">int</span> r,<span class="hljs-keyword">int</span> rt){
+    <span class="hljs-keyword">if</span>(L&lt;=l&amp;&amp;R&gt;=r){
+        <span class="hljs-keyword">return</span> tree[rt];
+    }
+    <span class="hljs-keyword">int</span> m=(l+r)&gt;&gt;<span class="hljs-number">1</span>;
+    <span class="hljs-keyword">int</span> ans=<span class="hljs-number">0</span>;
+    <span class="hljs-keyword">if</span>(L&lt;=m) ans+=query(L,R,l,m,rt&lt;&lt;<span class="hljs-number">1</span>);
+    <span class="hljs-keyword">if</span>(R&gt;m) ans+=query(L,R,m+<span class="hljs-number">1</span>,r,rt&lt;&lt;<span class="hljs-number">1</span>|<span class="hljs-number">1</span>);
+    <span class="hljs-keyword">return</span> ans;
+}
+
+<span class="hljs-keyword">int</span> main(){
+    <span class="hljs-keyword">int</span> n;
+    <span class="hljs-keyword">while</span>(<span class="hljs-built_in">cin</span>&gt;&gt;n){
+        <span class="hljs-built_in">memset</span>(ans,<span class="hljs-number">0</span>,<span class="hljs-keyword">sizeof</span>(ans));
+        <span class="hljs-built_in">memset</span>(tree,<span class="hljs-number">0</span>,<span class="hljs-keyword">sizeof</span>(tree));
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">1</span>;i&lt;=n;i++){
+            <span class="hljs-built_in">cin</span>&gt;&gt;x&gt;&gt;y;
+            x++;
+            ans[query(<span class="hljs-number">1</span>,x,<span class="hljs-number">1</span>,<span class="hljs-number">32000</span>+<span class="hljs-number">5</span>,<span class="hljs-number">1</span>)]++;<span class="hljs-comment">// 写个32000会wa 开大点就好了</span>
+            update(x,<span class="hljs-number">1</span>,<span class="hljs-number">32000</span>+<span class="hljs-number">5</span>,<span class="hljs-number">1</span>);
+        }
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;n;i++){
+            <span class="hljs-built_in">cout</span>&lt;&lt;ans[i]&lt;&lt;endl;
+        }
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+<p>Nested Segments CodeForces - 652D  <br/>
+<a data-token="b875cad5d874e5f124dabba41a483003" href="http://codeforces.com/problemset/problem/652/D" rel="nofollow">http://codeforces.com/problemset/problem/652/D</a></p>
+<p>这道题同上一题 不过由于 x y范围较大 -1e9 到1e9 离散化 orz</p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cmath&gt;</span>
+<span class="hljs-preprocessor">#include &lt;vector&gt;</span>
+<span class="hljs-preprocessor">#include &lt;queue&gt;</span>
+<span class="hljs-preprocessor">#include &lt;stack&gt;</span>
+<span class="hljs-preprocessor">#include &lt;map&gt; </span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn=<span class="hljs-number">2e5</span>+<span class="hljs-number">5</span>;
+
+<span class="hljs-keyword">struct</span> node{
+    <span class="hljs-keyword">int</span> x,y;
+    <span class="hljs-keyword">int</span> id;<span class="hljs-comment">// 方便ans数组输出。。</span>
+    <span class="hljs-keyword">int</span> num;
+}G[maxn];
+
+<span class="hljs-keyword">bool</span> cmp1(node a,node b){
+    <span class="hljs-keyword">return</span> a.y&lt;b.y;
+}
+
+<span class="hljs-keyword">bool</span> cmp2(node a,node b){
+    <span class="hljs-keyword">if</span>(a.x==b.x) <span class="hljs-keyword">return</span> a.y&lt;b.y;
+    <span class="hljs-keyword">return</span> a.x&gt;b.x;
+}
+
+<span class="hljs-keyword">int</span> ans[maxn];
+
+<span class="hljs-keyword">int</span> tree[maxn&lt;&lt;<span class="hljs-number">2</span>];
+
+
+<span class="hljs-keyword">void</span> updata(<span class="hljs-keyword">int</span> L,<span class="hljs-keyword">int</span> l,<span class="hljs-keyword">int</span> r,<span class="hljs-keyword">int</span> rt){
+    <span class="hljs-keyword">if</span>(l==r){
+        tree[rt]++;
+        <span class="hljs-keyword">return</span>;
+    }
+    <span class="hljs-keyword">int</span> m=(l+r)&gt;&gt;<span class="hljs-number">1</span>;
+    <span class="hljs-keyword">if</span>(L&lt;=m) updata(L,l,m,rt&lt;&lt;<span class="hljs-number">1</span>);
+    <span class="hljs-keyword">else</span> updata(L,m+<span class="hljs-number">1</span>,r,rt&lt;&lt;<span class="hljs-number">1</span>|<span class="hljs-number">1</span>);
+
+    tree[rt]=tree[rt&lt;&lt;<span class="hljs-number">1</span>]+tree[rt&lt;&lt;<span class="hljs-number">1</span>|<span class="hljs-number">1</span>];
+}
+
+<span class="hljs-keyword">int</span> query(<span class="hljs-keyword">int</span> L,<span class="hljs-keyword">int</span> R,<span class="hljs-keyword">int</span> l,<span class="hljs-keyword">int</span> r,<span class="hljs-keyword">int</span> rt){
+    <span class="hljs-keyword">if</span>(L&lt;=l&amp;&amp;R&gt;=r){
+        <span class="hljs-keyword">return</span> tree[rt];
+    }
+    <span class="hljs-keyword">int</span> m=(l+r)&gt;&gt;<span class="hljs-number">1</span>;
+    <span class="hljs-keyword">int</span> ans=<span class="hljs-number">0</span>;
+    <span class="hljs-keyword">if</span>(L&lt;=m) ans+=query(L,R,l,m,rt&lt;&lt;<span class="hljs-number">1</span>);
+    <span class="hljs-keyword">if</span>(R&gt;m) ans+=query(L,R,m+<span class="hljs-number">1</span>,r,rt&lt;&lt;<span class="hljs-number">1</span>|<span class="hljs-number">1</span>);
+    <span class="hljs-keyword">return</span> ans;
+}
+
+<span class="hljs-keyword">int</span> main(){
+    <span class="hljs-keyword">int</span> n,x,y;
+    <span class="hljs-keyword">while</span>(~<span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d"</span>,&amp;n)){
+        <span class="hljs-built_in">memset</span>(tree,<span class="hljs-number">0</span>,<span class="hljs-keyword">sizeof</span>(tree));
+        <span class="hljs-built_in">memset</span>(ans,<span class="hljs-number">0</span>,<span class="hljs-keyword">sizeof</span>(ans));
+    <span class="hljs-comment">//  build(1,n,1);</span>
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">1</span>;i&lt;=n;i++){
+            <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d %d"</span>,&amp;G[i].x,&amp;G[i].y);
+            G[i].id=i;
+        }
+
+        sort(G+<span class="hljs-number">1</span>,G+<span class="hljs-number">1</span>+n,cmp1);
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">1</span>;i&lt;=n;i++) G[i].y=i;<span class="hljs-comment">// 书上离散化 把重复的 反复到几个固定的数据 </span>
+        <span class="hljs-comment">//但是这题 书上那个 又二分什么的 lower_bound得自己写 </span>
+        <span class="hljs-comment">// 结构体 这里我不怎么会套二分查 写的太少</span>
+        <span class="hljs-comment">//不过友情链接出了一个解决办法 开个新数组搞 处理了</span>
+        sort(G+<span class="hljs-number">1</span>,G+<span class="hljs-number">1</span>+n,cmp2);
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">1</span>;i&lt;=n;i++){
+            ans[G[i].id]=query(<span class="hljs-number">1</span>,G[i].y,<span class="hljs-number">1</span>,maxn,<span class="hljs-number">1</span>);
+            updata(G[i].y,<span class="hljs-number">1</span>,maxn,<span class="hljs-number">1</span>);
+        }
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">1</span>;i&lt;=n;i++)<span class="hljs-built_in">printf</span>(<span class="hljs-string">"%d\n"</span>,ans[i]);
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+</div>
+</body>
+</html>

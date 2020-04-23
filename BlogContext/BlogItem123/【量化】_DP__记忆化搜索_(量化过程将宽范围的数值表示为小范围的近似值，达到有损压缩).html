@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>【量化】_DP__记忆化搜索_(量化过程将宽范围的数值表示为小范围的近似值，达到有损压缩)</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<p>量化<br/>
+量化过程将宽范围的数值表示为小范围的近似值，从而达到有损压缩的目的。例如：16位的JPG文件转换成4色的GIF文件，就是把RGB颜色空间的颜色量化成4种颜色的过程。还有，把身高为161、164、178、184的4名学生表示成“160-169阶段的2名，170-179阶段的1名、180以上阶段的1名”的方式也是量化。<br/>
+现要把小于1000的自然数组成的序列量化成s个自然数组成的序列。量化的方法其实很多，例如，只用两个数表示序列{1 2 3 4 5 6 7 8 9 10}，就可以表示成{3 3 3 3 3 7 7 7 7 7}。或还可以用{1 1 1 1 1 10 10 10 10 10}的形式表示。那么，各数值误差平方之和最小的量化结果是多少呢？</p>
+<p>比如，把序列{1 2 3 4 5}量化成{2 2 3 3 3}，各数值量化后的误差是-1、0、0、1、2。那么，误差平方之和是1+0+0+1+4=6。但是，如果量化成{2 2 3 4 4}，那么误差平方之和是1+0+1+0+1=3。接下来请编写程序，求用s个数值量化给定序列后，误差平方之和的最小值。</p>
+<p>输入<br/>
+第一行输入测试用例的个数C（1&lt;=C&lt;=50）。各测试用例的第一行输入序列的长度n（1&lt;=n&lt;=100），以及可使用的数值个数s（1&lt;=s&lt;=10）。第二行输入序列的n个整数，且序列的所有数值是1000以下的自然数。<br/>
+输出<br/>
+每个测试用例将在1行内输出用s个数值量化给定序列时产生的最小误差平方之和。</p>
+<p>示例输入值<br/>
+2<br/>
+10 3<br/>
+3 3 3 1 2 3 2 2 2 1<br/>
+9 3<br/>
+1 744 755 4 897 902 890 6 777<br/>
+示例输出值<br/>
+0<br/>
+651</p>
+<p>**<s>这题坑的一批啊</s> **<br/>
+算是DP 可以线性递推  类似区间<br/>
+不过我这里用的记忆化 <s>我菜的一批 线推就告辞了</s></p>
+<p>具体实现思路 是这样的<br/>
+先sort(先让他们距离变小)  这里是不固定 选择变成什么数据的  选择平均数<br/>
+如果只能变成只能这里出现过的数据 就是货场选址问题了 (中位数)<br/>
+<s>之后开启我们伟大的xjb乱搜</s></p>
+<p>我们考虑从 l 开始 同时 枚举向后面 gs (个数) 个 期间我们dp选择最小值 参考 小木棍(进阶搜索)<br/>
+这里的方程就是选择最小的 误差平方之和 作为 这一段的解<br/>
+显然 在这过程中 有大量重复的计算 我们选择记忆化 处理<br/>
+ps ： 解集里面有 0  初始化为 -1</p>
+<pre><code class="prism language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;bits/stdc++.h&gt;</span></span>
+using namespace std<span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token keyword">int</span> INF <span class="token operator">=</span> <span class="token number">0x3f3f3f3f</span><span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> n<span class="token punctuation">,</span> s<span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> a<span class="token punctuation">[</span><span class="token number">105</span><span class="token punctuation">]</span><span class="token punctuation">,</span> dp<span class="token punctuation">[</span><span class="token number">105</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">15</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> <span class="token function">dfs</span><span class="token punctuation">(</span><span class="token keyword">int</span> l<span class="token punctuation">,</span> <span class="token keyword">int</span> gs<span class="token punctuation">)</span><span class="token punctuation">{</span>
+	<span class="token keyword">if</span><span class="token punctuation">(</span>l <span class="token operator">&gt;</span> n<span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span> 
+	<span class="token keyword">if</span><span class="token punctuation">(</span>gs <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token keyword">return</span> INF<span class="token punctuation">;</span>
+	<span class="token keyword">if</span><span class="token punctuation">(</span>dp<span class="token punctuation">[</span>l<span class="token punctuation">]</span><span class="token punctuation">[</span>gs<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token keyword">return</span> dp<span class="token punctuation">[</span>l<span class="token punctuation">]</span><span class="token punctuation">[</span>gs<span class="token punctuation">]</span><span class="token punctuation">;</span>
+	<span class="token keyword">int</span> sum <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	<span class="token keyword">int</span> sx<span class="token punctuation">,</span> k <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	<span class="token keyword">int</span> res <span class="token operator">=</span> INF<span class="token punctuation">;</span>
+	<span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> l<span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> n<span class="token punctuation">;</span> i <span class="token operator">++</span> <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		sum <span class="token operator">+</span><span class="token operator">=</span> a<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+		k <span class="token operator">++</span> <span class="token punctuation">;</span>
+		sx <span class="token operator">=</span> <span class="token function">round</span><span class="token punctuation">(</span><span class="token number">1.0</span> <span class="token operator">*</span> sum <span class="token operator">/</span> k<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token keyword">int</span> cnt <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+		<span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span>  j <span class="token operator">=</span> l<span class="token punctuation">;</span> j <span class="token operator">&lt;=</span> i<span class="token punctuation">;</span> j <span class="token operator">++</span> <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+			cnt <span class="token operator">+</span><span class="token operator">=</span> <span class="token punctuation">(</span>a<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">-</span> sx<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span>a<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">-</span> sx<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+		res <span class="token operator">=</span> min <span class="token punctuation">(</span>res<span class="token punctuation">,</span> <span class="token function">dfs</span><span class="token punctuation">(</span>i <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> gs <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">+</span> cnt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">return</span> dp<span class="token punctuation">[</span>l<span class="token punctuation">]</span><span class="token punctuation">[</span>gs<span class="token punctuation">]</span> <span class="token operator">=</span> res<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+	<span class="token keyword">int</span> cas <span class="token punctuation">;</span>
+	cin <span class="token operator">&gt;&gt;</span> cas<span class="token punctuation">;</span>
+	<span class="token keyword">while</span><span class="token punctuation">(</span>cas <span class="token operator">--</span> <span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token function">memset</span><span class="token punctuation">(</span>dp<span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token keyword">sizeof</span> dp<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		cin <span class="token operator">&gt;&gt;</span> n <span class="token operator">&gt;&gt;</span> s<span class="token punctuation">;</span>
+		<span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> n<span class="token punctuation">;</span> i <span class="token operator">++</span> <span class="token punctuation">)</span> cin <span class="token operator">&gt;&gt;</span> a<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+		<span class="token function">sort</span><span class="token punctuation">(</span>a <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> a <span class="token operator">+</span> <span class="token number">1</span> <span class="token operator">+</span> n<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		cout <span class="token operator">&lt;&lt;</span> <span class="token function">dfs</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> s<span class="token punctuation">)</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>不分类了 暂时不明其意</p>
+</div>
+</body>
+</html>

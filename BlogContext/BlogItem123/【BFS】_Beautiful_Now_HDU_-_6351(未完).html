@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>【BFS】_Beautiful_Now_HDU_-_6351(未完)</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<p><a data-token="24a37727dfb487222929dc7e9d77c748" href="http://acm.hdu.edu.cn/showproblem.php?pid=6351" rel="nofollow">http://acm.hdu.edu.cn/showproblem.php?pid=6351</a> <br/>
+输入 t k  <br/>
+对于一个数据最多交换K次 找最大最小值  <br/>
+5  <br/>
+12 1  <br/>
+213 2  <br/>
+998244353 1  <br/>
+998244353 2  <br/>
+998244353 3 <br/>
+12 21  <br/>
+123 321  <br/>
+298944353 998544323  <br/>
+238944359 998544332  <br/>
+233944859 998544332 <br/>
+注意0的存在； <br/>
+思路 找最小的最大的 交换 对重复的 都压入队列 BFS找最小的 <br/>
+（贪心的话 就不太可能在多个最大最小中找到该换的 所以考虑BFS把所有的都试一试搞定）  <br/>
+DFS之后补下  <br/>
+不过BFS相当快</p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cmath&gt;</span>
+<span class="hljs-preprocessor">#include &lt;vector&gt;</span>
+<span class="hljs-preprocessor">#include &lt;map&gt;</span>
+<span class="hljs-preprocessor">#include &lt;string&gt;</span>
+<span class="hljs-preprocessor">#include &lt;queue&gt;</span>
+<span class="hljs-preprocessor">#include &lt;stack&gt;</span>
+<span class="hljs-preprocessor">#include &lt;set&gt;</span>
+<span class="hljs-preprocessor">#include &lt;list&gt;</span>
+<span class="hljs-preprocessor">#include &lt;bitset&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+
+<span class="hljs-keyword">int</span> n,k,m,t;
+<span class="hljs-built_in">string</span> s,s1,s2;
+
+<span class="hljs-keyword">struct</span> node{
+    <span class="hljs-built_in">string</span> tmp;
+    <span class="hljs-keyword">int</span> st;
+    <span class="hljs-keyword">int</span> sp;
+};
+
+<span class="hljs-built_in">string</span> bfs1(){
+    <span class="hljs-stl_container"><span class="hljs-built_in">queue</span>&lt;node&gt;</span> q;
+    q.push(node{s,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>});
+    <span class="hljs-built_in">string</span> res=<span class="hljs-string">"999999999999"</span>;
+    <span class="hljs-keyword">while</span>(!q.empty()){
+        node p=q.front();q.pop();
+        res=min(res,p.tmp);
+        <span class="hljs-keyword">if</span>(p.sp==k) <span class="hljs-keyword">continue</span>;
+        <span class="hljs-keyword">if</span>(p.st==s.size()-<span class="hljs-number">1</span>) <span class="hljs-keyword">continue</span>;
+        <span class="hljs-built_in">string</span> tmp=p.tmp;
+        <span class="hljs-keyword">int</span> pos=p.st;
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=p.st+<span class="hljs-number">1</span>;i&lt;tmp.size();i++){ 
+            <span class="hljs-keyword">if</span>(p.st==<span class="hljs-number">0</span>&amp;&amp;tmp[i]==<span class="hljs-string">'0'</span>) <span class="hljs-keyword">continue</span>;<span class="hljs-comment">//去0</span>
+            <span class="hljs-keyword">if</span>(tmp[i]&lt;tmp[pos]){<span class="hljs-comment">//huan xiao de</span>
+                pos=i;
+            }   
+        }
+        <span class="hljs-keyword">if</span>(pos==p.st){
+            q.push(node{p.tmp,p.st+<span class="hljs-number">1</span>,p.sp});
+        }
+        <span class="hljs-keyword">else</span>{
+             <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=p.st;i&lt;s.size();i++){
+                <span class="hljs-keyword">if</span>(tmp[i]==tmp[pos]){
+                    swap(tmp[i],tmp[p.st]);
+                    q.push(node{tmp,p.st+<span class="hljs-number">1</span>,p.sp+<span class="hljs-number">1</span>});
+                    swap(tmp[i],tmp[p.st]);
+                }
+            }
+        }
+    }
+    <span class="hljs-keyword">return</span> res;
+}
+
+<span class="hljs-built_in">string</span> bfs2(){
+    <span class="hljs-stl_container"><span class="hljs-built_in">queue</span>&lt;node&gt;</span> q;
+    q.push(node{s,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>});
+    <span class="hljs-built_in">string</span> res=<span class="hljs-string">"0"</span>;
+    <span class="hljs-keyword">while</span>(!q.empty()){
+        node p=q.front();q.pop();
+    <span class="hljs-comment">//  cout&lt;&lt;p.tmp&lt;&lt;endl;</span>
+        res=max(res,p.tmp);
+        <span class="hljs-keyword">if</span>(p.sp==k) <span class="hljs-keyword">continue</span>;
+        <span class="hljs-keyword">if</span>(p.st==s.size()-<span class="hljs-number">1</span>) <span class="hljs-keyword">continue</span>;
+    <span class="hljs-comment">//  if(res&gt;=p.tmp) continue;</span>
+        <span class="hljs-built_in">string</span> tmp=p.tmp;
+        <span class="hljs-keyword">int</span> pos=p.st;
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=p.st+<span class="hljs-number">1</span>;i&lt;tmp.size();i++){
+
+            <span class="hljs-keyword">if</span>(tmp[i]&gt;tmp[pos]){<span class="hljs-comment">//huan da de</span>
+                pos=i;
+            }   
+        }
+        <span class="hljs-keyword">if</span>(pos==p.st){
+            q.push(node{p.tmp,p.st+<span class="hljs-number">1</span>,p.sp});
+        }
+        <span class="hljs-keyword">else</span>{
+             <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=p.st;i&lt;s.size();i++){
+
+                <span class="hljs-keyword">if</span>(tmp[i]==tmp[pos]){
+                    swap(tmp[i],tmp[p.st]);
+                    q.push(node{tmp,p.st+<span class="hljs-number">1</span>,p.sp+<span class="hljs-number">1</span>});
+                    swap(tmp[i],tmp[p.st]);
+                }
+
+            }
+        }
+    }
+    <span class="hljs-keyword">return</span> res;
+}
+
+<span class="hljs-keyword">int</span> main(){
+    ios::sync_with_stdio(<span class="hljs-keyword">false</span>);
+    <span class="hljs-built_in">cin</span>&gt;&gt;t;
+    <span class="hljs-keyword">while</span>(t--){
+        <span class="hljs-built_in">cin</span>&gt;&gt;s&gt;&gt;k;
+        k=min(k,(<span class="hljs-keyword">int</span>)s.size()-<span class="hljs-number">1</span>);
+        s1=bfs1();<span class="hljs-comment">//da</span>
+        s2=bfs2();<span class="hljs-comment">//xiao</span>
+        <span class="hljs-built_in">cout</span>&lt;&lt;s1&lt;&lt;<span class="hljs-string">" "</span>&lt;&lt;s2&lt;&lt;endl; 
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; 
+}</code></pre>
+</div>
+</body>
+</html>

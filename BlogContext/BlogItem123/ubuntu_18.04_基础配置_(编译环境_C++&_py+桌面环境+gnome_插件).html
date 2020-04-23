@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>ubuntu_18.04_基础配置_(编译环境_C++&_py+桌面环境+gnome_插件)</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<h1><a id="PC__0"></a>PC 型号</h1>
+<h5><a id="_pro_156_MX150___ubuntu_2019725__20___22_1"></a>本人电脑是 小米pro 15.6寸 MX150 版本  ubuntu上无指纹支持驱动(目前 2019:7:25 我觉得 20 年前 是不太可能的 22年有可能出)</h5>
+<p>ps： 如果非要享受 指纹这玩意  建议debian 这个针对小米pro 出过一系列更新 有指纹什么的</p>
+<p>评价小米pro 15.6 MX150 屏幕出众  但也就屏幕出众了…  大部分机子 用久了 尤其是风扇高速转 突然停转 发出异响 多次这样  低速时也会有较小的异响 硬件问题 用久了 重度用的 都有</p>
+<p>官网下的 ubuntu 镜像  U盘启动器直接烧一个就行</p>
+<h3><a id="__8"></a>建议最小安装 不按照不必要应用</h3>
+<p>默认安装 双系统 什么的也就是 往空盘直接放 我都默认按的  (本身win10 双系统)</p>
+<p>安装完之后<br/>
+一下软件<br/>
+直接再 软件更新 应用里换 阿里源</p>
+<p>有些 更新 和 软件要求重启 我们之后统一处理</p>
+<p><a data-token="74b9833b79f257bab64ed107417301f4" href="https://www.wps.cn/product/wpslinux/" rel="nofollow">https://www.wps.cn/product/wpslinux/</a> WPS<br/>
+<a data-token="9a11902d76f2a668a1e62d2e73d2c845" href="http://www.ubuntuchrome.com/" rel="nofollow">http://www.ubuntuchrome.com/</a> chrome google<br/>
+<a data-token="e4e0967c9878d6cf4518333c2a1e6438" href="https://music.163.com/#/download" rel="nofollow">https://music.163.com/#/download</a> 网易云音乐<br/>
+<a data-token="f117969b5a3048fb3cb0a4c5bec5f4fa" href="https://code.visualstudio.com/download" rel="nofollow">https://code.visualstudio.com/download</a> vscode<br/>
+sudo apt install git     ///git</p>
+<p>从设置找到语言-&gt;管理安装语言，待更新安装完成，设置为fcitx<br/>
+<a data-token="ada82d9db9e2c2ded2742c31e300a9c5" href="https://pinyin.sogou.com/linux/?r=pinyin" rel="nofollow">https://pinyin.sogou.com/linux/?r=pinyin</a>  安装 SOUGOU  这个有些机子要重启 暂时别重启<br/>
+在这个github 里面选择TIM 微信安装<br/>
+<a data-token="67ece4ecf40d6366b1f95fb3530c8096" href="https://github.com/wszqkzqk/deepin-wine-ubuntu" rel="nofollow">https://github.com/wszqkzqk/deepin-wine-ubuntu</a></p>
+<p>C++ 环境  其实正常你更新了 这些环境都是ubuntu自带的</p>
+<h2><a id="c_29"></a>c++</h2>
+<pre><code class="prism language-py">	sudo apt<span class="token operator">-</span>get install vim
+    sudo apt<span class="token operator">-</span>get install gcc
+    sudo apt<span class="token operator">-</span>get install g<span class="token operator">+</span><span class="token operator">+</span>
+    sudo add<span class="token operator">-</span>apt<span class="token operator">-</span>repository ppa<span class="token punctuation">:</span>pasgui<span class="token operator">/</span>ppa
+    sudo apt<span class="token operator">-</span>get update
+    sudo apt<span class="token operator">-</span>get install codeblocks
+    sudo apt<span class="token operator">-</span>get install codeblocks<span class="token operator">-</span>contrib
+</code></pre>
+<p>vscode 配置  c++ py<br/>
+py 暂时不升级 下载pip<br/>
+c++ launch.json</p>
+<pre><code class="prism language-js"><span class="token punctuation">{</span>
+    <span class="token comment">// Use IntelliSense to learn about possible attributes.</span>
+    <span class="token comment">// Hover to view descriptions of existing attributes.</span>
+    <span class="token comment">// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387</span>
+    <span class="token string">"version"</span><span class="token punctuation">:</span> <span class="token string">"0.2.0"</span><span class="token punctuation">,</span>
+    <span class="token string">"configurations"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+        <span class="token punctuation">{</span>
+            <span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token string">"(gdb) Launch"</span><span class="token punctuation">,</span>
+            <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"cppdbg"</span><span class="token punctuation">,</span>
+            <span class="token string">"request"</span><span class="token punctuation">:</span> <span class="token string">"launch"</span><span class="token punctuation">,</span>
+            <span class="token string">"program"</span><span class="token punctuation">:</span> <span class="token string">"${workspaceFolder}/${fileBasenameNoExtension}.out"</span><span class="token punctuation">,</span>
+            <span class="token string">"args"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token string">"stopAtEntry"</span><span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+            <span class="token string">"cwd"</span><span class="token punctuation">:</span> <span class="token string">"${workspaceFolder}"</span><span class="token punctuation">,</span>
+            <span class="token string">"environment"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+            <span class="token string">"externalConsole"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+            <span class="token string">"MIMode"</span><span class="token punctuation">:</span> <span class="token string">"gdb"</span><span class="token punctuation">,</span>
+            <span class="token string">"preLaunchTask"</span><span class="token punctuation">:</span> <span class="token string">"build"</span><span class="token punctuation">,</span> 
+            <span class="token string">"setupCommands"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+                <span class="token punctuation">{</span>
+                    <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Enable pretty-printing for gdb"</span><span class="token punctuation">,</span>
+                    <span class="token string">"text"</span><span class="token punctuation">:</span> <span class="token string">"-enable-pretty-printing"</span><span class="token punctuation">,</span>
+                    <span class="token string">"ignoreFailures"</span><span class="token punctuation">:</span> <span class="token boolean">true</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">]</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>c++ settings.json</p>
+<pre><code class="prism language-js"><span class="token punctuation">{</span>
+    <span class="token string">"files.associations"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        <span class="token string">"iostream"</span><span class="token punctuation">:</span> <span class="token string">"cpp"</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>c++ taks.json</p>
+<pre><code class="prism language-js"><span class="token punctuation">{</span>
+    <span class="token string">"tasks"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+        <span class="token punctuation">{</span>
+            <span class="token string">"label"</span><span class="token punctuation">:</span> <span class="token string">"build"</span><span class="token punctuation">,</span>
+            <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"shell"</span><span class="token punctuation">,</span>
+            <span class="token string">"command"</span><span class="token punctuation">:</span> <span class="token string">"g++"</span><span class="token punctuation">,</span>
+            <span class="token string">"args"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"-g"</span><span class="token punctuation">,</span> <span class="token string">"${file}"</span><span class="token punctuation">,</span> <span class="token string">"-std=c++11"</span><span class="token punctuation">,</span> <span class="token string">"-o"</span><span class="token punctuation">,</span> <span class="token string">"${fileBasenameNoExtension}.out"</span><span class="token punctuation">]</span>
+        <span class="token punctuation">}</span>
+     <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>py launch.json</p>
+<pre><code class="prism language-json"><span class="token punctuation">{</span>
+    <span class="token comment">// 使用 IntelliSense 了解相关属性。 </span>
+    <span class="token comment">// 悬停以查看现有属性的描述。</span>
+    <span class="token comment">// 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387</span>
+    <span class="token string">"version"</span><span class="token punctuation">:</span> <span class="token string">"0.2.0"</span><span class="token punctuation">,</span>
+    <span class="token string">"configurations"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+        
+        <span class="token punctuation">{</span>
+            <span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token string">"Python"</span><span class="token punctuation">,</span>
+            <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"python"</span><span class="token punctuation">,</span>
+            <span class="token string">"request"</span><span class="token punctuation">:</span> <span class="token string">"launch"</span><span class="token punctuation">,</span>
+            <span class="token string">"program"</span><span class="token punctuation">:</span> <span class="token string">"${file}"</span><span class="token punctuation">,</span>
+            <span class="token string">"console"</span><span class="token punctuation">:</span> <span class="token string">"externalTerminal"</span>
+            <span class="token comment">//“integratedTerminal”</span>
+            <span class="token comment">// "externalTerminal"</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<pre><code class="prism language-py"><span class="token comment"># 1. 更新系统包</span>
+sudo apt<span class="token operator">-</span>get update
+sudo apt<span class="token operator">-</span>get upgrade
+
+<span class="token comment"># 2. 安装Pip</span>
+sudo apt<span class="token operator">-</span>get install python<span class="token operator">-</span>pip
+
+<span class="token comment"># 3. 检查 pip 是否安装成功</span>
+pip <span class="token operator">-</span>V
+</code></pre>
+<p>显卡驱动<br/>
+阿里源  一般NV都有  直接再软件和更新 里找 附加驱动就行<br/>
+现在版本是390  官方给了 431 版本了 有点小问题 还行 不建议去更新<br/>
+小米pro  开集显就好  如果你想玩游戏 还是win吧 切换很方便</p>
+<h1><a id="TLP__GRUB__136"></a>TLP 和 GRUB 修复引导</h1>
+<p>Tlp 简直NB</p>
+<h2><a id="__TLP___139"></a>如果出现 耳机杂音 开启TLP  请关掉</h2>
+<p>编辑 tlp 配置文件 让    <code>sound_save_power = 0</code>  重点划线</p>
+<p>安装完tlp 和//// 一般不需要 grub 修复<br/>
+tlp 下载安装不需要配置</p>
+<h3><a id="grub_145"></a>grub</h3>
+<p>引导修复  ps 一般用不上</p>
+<pre><code>sudo add-apt-repository ppa:yannubuntu/boot-repair
+sudo apt-get update
+sudo apt-get install -y boot-repair
+</code></pre>
+<h3><a id="TLP_152"></a>TLP</h3>
+<p>不需要配置 按完就好 默认auto的 笔记本够用的</p>
+<pre><code> sudo add-apt-repository ppa:linrunner/tlp
+sudo apt-get update
+sudo apt-get install tlp tlp-rdw
+ sudo apt-get insta
+</code></pre>
+<p>Gnome 插件  不一定非得要Gnome 桌面 大部分可以直接用的<br/>
+建议百度 最小安装 桌面<br/>
+//// //sudo apt-get  install gnome</p>
+<p>gnome 插件</p>
+<h3><a id="GNOME_Shell__166"></a>GNOME Shell 扩展</h3>
+<pre><code>sudo apt install gnome-tweak-tool 管理各种美化的用的
+sudo apt install chrome-gnome-shell  // usr主题 插件
+</code></pre>
+<p><a data-token="1d9d04f1ee4e7aa532b3bf6d1b1da8a3" href="https://extensions.gnome.org/" rel="nofollow">https://extensions.gnome.org/</a><br/>
+我用的  不多  以下直接搜就好<br/>
+其实还有剪切板插件 Clipboard Indicator<br/>
+截图插件 Screenshot Tool</p>
+<pre><code>Alt-Tab Switcher Popup Delay Removal  
+AlternateTab
+Auto Move Windows  
+Battery Percentage  
+Dynamic Panel Transparency
+Impatience
+OpenWeather  
+Pixel Saver
+TopIcons  
+User Themes
+VSCode Search Provider  
+</code></pre>
+<h3><a id="__189"></a>双系统 时间同步</h3>
+<p>看情况了</p>
+<pre><code>sudo apt install ntpdate
+sudo ntpdate time.windows.com
+sudo hwclock --localtime --systohc ok
+</code></pre>
+</div>
+</body>
+</html>

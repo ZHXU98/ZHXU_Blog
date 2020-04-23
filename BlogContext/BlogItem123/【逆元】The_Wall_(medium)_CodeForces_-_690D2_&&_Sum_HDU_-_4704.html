@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>【逆元】The_Wall_(medium)_CodeForces_-_690D2_&&_Sum_HDU_-_4704</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<p>费马小定理 <br/>
+题一</p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include &lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn = <span class="hljs-number">1000005</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> mod = <span class="hljs-number">1000003</span>;
+
+ll f[maxn + <span class="hljs-number">10</span>];
+
+<span class="hljs-keyword">void</span> init() {<span class="hljs-comment">//阶乘</span>
+    f[<span class="hljs-number">0</span>] = <span class="hljs-number">1</span>;
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">1</span>; i &lt;= maxn; i++) {
+        f[i] = (<span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span>)f[i - <span class="hljs-number">1</span>] * i%mod;
+    }
+}
+
+ll pow_mod(ll a, ll b) {
+    ll ans = <span class="hljs-number">1</span>; a %= mod;
+    <span class="hljs-keyword">while</span> (b) {
+        <span class="hljs-keyword">if</span> (b &amp; <span class="hljs-number">1</span>) {
+            ans = ans * a % mod;
+            b--;
+        }
+        b &gt;&gt;= <span class="hljs-number">1</span>;
+        a = a * a % mod;
+    }
+    <span class="hljs-keyword">return</span> ans;
+}
+
+<span class="hljs-keyword">int</span> C(<span class="hljs-keyword">int</span> m, <span class="hljs-keyword">int</span> n) {<span class="hljs-comment">//求逆元</span>
+    <span class="hljs-keyword">return</span> f[n] * pow_mod(f[m], mod - <span class="hljs-number">2</span>) % mod*pow_mod(f[n - m], mod - <span class="hljs-number">2</span>) % mod;
+}
+
+<span class="hljs-keyword">int</span> main() {
+    init();
+    <span class="hljs-keyword">int</span> n, m;
+    <span class="hljs-keyword">while</span> (<span class="hljs-built_in">cin</span> &gt;&gt; n &gt;&gt; m) {
+
+        <span class="hljs-built_in">cout</span> &lt;&lt; C(m, n + m) - <span class="hljs-number">1</span> &lt;&lt; endl;
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+<p>题二 pow（2,n-1） n巨大</p>
+<pre class="prettyprint"><code class="language-#include &lt;cstdio&gt; hljs cpp"><span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn = <span class="hljs-number">1000005</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> mod = <span class="hljs-number">1000000007</span> ;
+
+
+ll pow_mod( ll a, ll b ){
+      ll ans = <span class="hljs-number">1</span> ; a %= mod;
+    <span class="hljs-keyword">while</span> ( b ) {
+        <span class="hljs-keyword">if</span> ( b &amp; <span class="hljs-number">1</span> ){
+            ans = ans * a % mod;  
+            b--;
+        }
+            b &gt;&gt;= <span class="hljs-number">1</span>;  
+            a = a * a % mod;
+    }
+        <span class="hljs-keyword">return</span> ans;
+}
+
+<span class="hljs-keyword">int</span> main(){
+    <span class="hljs-keyword">int</span> n,m;
+<span class="hljs-comment">//  cout&lt;&lt;123456%7&lt;&lt;endl;</span>
+    <span class="hljs-built_in">string</span> s;
+    <span class="hljs-keyword">while</span>(<span class="hljs-built_in">cin</span>&gt;&gt;s){
+        ll sum=<span class="hljs-number">0</span>;
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;s.size();i++){
+            sum=(sum*<span class="hljs-number">10</span>+s[i]-<span class="hljs-number">48</span>)%(mod-<span class="hljs-number">1</span>);<span class="hljs-comment">//ps1</span>
+        }
+        <span class="hljs-built_in">cout</span>&lt;&lt;pow_mod(<span class="hljs-number">2</span>,sum-<span class="hljs-number">1</span>)%mod&lt;&lt;endl;
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+} 
+</code></pre>
+<p>ps1： <br/>
+粗： <br/>
+mod-1 显然是 2^(p-1)%p=1以及求2^(n-1)情况下 <br/>
+所以 (n-1-k(p-1)）； <br/>
+稍微细点 <br/>
+当p是一个素数并且a和p互质时，a^(p-1) %p≡1。 <br/>
+　　那么在这道题里a=2，p=mod。显然满足费马小定理。再根据同余模定理， <br/>
+　　当n&gt;p时：设m=n-p。那么an-1=am+p-1=ap-1*am。因而an-1%p=am+p-1%p=((ap-1%p )*(am%p))%p=1*am%p。</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,245 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>python_爬虫入门_练习六_(ajax+json)_异步加载的网站</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<h4><a id="ajax__0"></a>ajax 滚动页面的数据获取</h4>
+<p>一般的 刚开始我们获得页面不全 而且 页面随着滚动不断加载新的<br/>
+我们考虑 找到提供数据的 js文件 <s>(幸好没有加密啊 加密还得学orz)</s><br/>
+https://www.guokr.com/scientific/</p>
+<h4><a id="_4"></a>步骤</h4>
+<p>https://www.guokr.com/scientific/<br/>
+滚动 尝试找到 js 然后发现其实就一个  还没有加密 很实在<br/>
+<img alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20191119160343459.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwODMxMzQw,size_16,color_FFFFFF,t_70"/><br/>
+https://www.guokr.com/apis/minisite/article.json?retrieve_type=by_subject&amp;limit=20&amp;offset=38（&amp;_=1574142521345 这里可以没有）<br/>
+获得当前页面 发现是一个json 给出这次20个文章数据<br/>
+offset是文章位置 每次只能limit 20 个 offset 第一页数据给出 现在有 12350 个</p>
+<pre><code class="prism language-json"><span class="token punctuation">{</span>
+	<span class="token string">"now"</span><span class="token punctuation">:</span> <span class="token string">"2019-11-19T16:07:24.777921+08:00"</span><span class="token punctuation">,</span>
+	<span class="token string">"ok"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+	<span class="token string">"limit"</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+	<span class="token string">"result"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>
+		<span class="token string">"image"</span><span class="token punctuation">:</span> <span class="token string">""</span><span class="token punctuation">,</span>
+		<span class="token string">"is_replyable"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+		<span class="token string">"channels"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>
+			<span class="token string">"url"</span><span class="token punctuation">:</span> <span class="token string">"https://www.guokr.com/scientific/channel/frontier/"</span><span class="token punctuation">,</span>
+			<span class="token string">"date_created"</span><span class="token punctuation">:</span> <span class="token string">"2014-05-23T16:22:09.282129+08:00"</span><span class="token punctuation">,</span>
+			<span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token string">"\u524d\u6cbf"</span><span class="token punctuation">,</span>
+			<span class="token string">"key"</span><span class="token punctuation">:</span> <span class="token string">"frontier"</span><span class="token punctuation">,</span>
+			<span class="token string">"articles_count"</span><span class="token punctuation">:</span> <span class="token number">4299</span>
+		<span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+		<span class="token string">"channel_keys"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"frontier"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+		<span class="token string">"preface"</span><span class="token punctuation">:</span> <span class="token string">""</span><span class="token punctuation">,</span>
+		<span class="token string">"id"</span><span class="token punctuation">:</span> <span class="token number">454947</span><span class="token punctuation">,</span>
+		<span class="token string">"subject"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+			<span class="token string">"url"</span><span class="token punctuation">:</span> <span class="token string">"https://www.guokr.com/scientific/subject/engineering/"</span><span class="token punctuation">,</span>
+			<span class="token string">"date_created"</span><span class="token punctuation">:</span> <span class="token string">"2014-05-23T16:22:09.282129+08:00"</span><span class="token punctuation">,</span>
+			<span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token string">"\u5de5\u7a0b"</span><span class="token punctuation">,</span>
+			<span class="token string">"key"</span><span class="token punctuation">:</span> <span class="token string">"engineering"</span><span class="token punctuation">,</span>
+			<span class="token string">"articles_count"</span><span class="token punctuation">:</span> <span class="token number">369</span>
+		<span class="token punctuation">}</span><span class="token punctuation">,</span>
+		<span class="token string">"is_editor_recommend"</span><span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+		<span class="token string">"copyright"</span><span class="token punctuation">:</span> <span class="token string">"owned_by_guokr"</span><span class="token punctuation">,</span>
+		<span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+			<span class="token string">"ukey"</span><span class="token punctuation">:</span> <span class="token string">"7kysvk"</span><span class="token punctuation">,</span>
+			<span class="token string">"is_title_authorized"</span><span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+			<span class="token string">"nickname"</span><span class="token punctuation">:</span> <span class="token string">"\u5706\u7684\u65b9\u5757"</span><span class="token punctuation">,</span>
+			<span class="token string">"master_category"</span><span class="token punctuation">:</span> <span class="token string">"normal"</span><span class="token punctuation">,</span>
+			<span class="token string">"amended_reliability"</span><span class="token punctuation">:</span> <span class="token string">"0"</span><span class="token punctuation">,</span>
+			<span class="token string">"is_exists"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+			<span class="token string">"title"</span><span class="token punctuation">:</span> <span class="token string">"\u6293\u4f4f\u8868\u8fbe\u6b32"</span><span class="token punctuation">,</span>
+			<span class="token string">"url"</span><span class="token punctuation">:</span> <span class="token string">"https://www.guokr.com/i/0458479280/"</span><span class="token punctuation">,</span>
+			<span class="token string">"gender"</span><span class="token punctuation">:</span> <span class="token string">"male"</span><span class="token punctuation">,</span>
+			<span class="token string">"followers_count"</span><span class="token punctuation">:</span> <span class="token number">34</span><span class="token punctuation">,</span>
+			<span class="token string">"avatar"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+				<span class="token string">"large"</span><span class="token punctuation">:</span> <span class="token string">"https://2-im.guokr.com/3QE6l-9tPaKLDhT84toa0vV_qxTQlkUNNKyuobuofl-gAAAAoAAAAEpQ.jpg?imageView2/1/w/160/h/160"</span><span class="token punctuation">,</span>
+				<span class="token string">"small"</span><span class="token punctuation">:</span> <span class="token string">"https://2-im.guokr.com/3QE6l-9tPaKLDhT84toa0vV_qxTQlkUNNKyuobuofl-gAAAAoAAAAEpQ.jpg?imageView2/1/w/24/h/24"</span><span class="token punctuation">,</span>
+				<span class="token string">"normal"</span><span class="token punctuation">:</span> <span class="token string">"https://2-im.guokr.com/3QE6l-9tPaKLDhT84toa0vV_qxTQlkUNNKyuobuofl-gAAAAoAAAAEpQ.jpg?imageView2/1/w/48/h/48"</span>
+			<span class="token punctuation">}</span><span class="token punctuation">,</span>
+			<span class="token string">"resource_url"</span><span class="token punctuation">:</span> <span class="token string">"https://apis.guokr.com/community/user/7kysvk.json"</span>
+		<span class="token punctuation">}</span><span class="token punctuation">,</span>
+		<span class="token string">"image_description"</span><span class="token punctuation">:</span> <span class="token string">""</span><span class="token punctuation">,</span>
+		<span class="token string">"is_show_summary"</span><span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+		<span class="token string">"minisite_key"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+		<span class="token string">"image_info"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+			<span class="token string">"url"</span><span class="token punctuation">:</span> <span class="token string">"https://2-im.guokr.com/LzCb_4lAe8TN7J1vFduyVrtGMIbNIdbRTUqp3iLGDZkCAwAAIAIAAEpQ.jpg"</span><span class="token punctuation">,</span>
+			<span class="token string">"width"</span><span class="token punctuation">:</span> <span class="token number">770</span><span class="token punctuation">,</span>
+			<span class="token string">"height"</span><span class="token punctuation">:</span> <span class="token number">544</span>
+		<span class="token punctuation">}</span><span class="token punctuation">,</span>
+		<span class="token string">"subject_key"</span><span class="token punctuation">:</span> <span class="token string">"engineering"</span><span class="token punctuation">,</span>
+		<span class="token string">"minisite"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+		<span class="token string">"tags"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+		<span class="token string">"date_published"</span><span class="token punctuation">:</span> <span class="token string">"2019-11-01T12:25:38.179681+08:00"</span><span class="token punctuation">,</span>
+		<span class="token string">"video_content"</span><span class="token punctuation">:</span> <span class="token string">""</span><span class="token punctuation">,</span>
+		<span class="token string">"authors"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>
+			<span class="token string">"ukey"</span><span class="token punctuation">:</span> <span class="token string">"7kysvk"</span><span class="token punctuation">,</span>
+			<span class="token string">"is_title_authorized"</span><span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+			<span class="token string">"nickname"</span><span class="token punctuation">:</span> <span class="token string">"\u5706\u7684\u65b9\u5757"</span><span class="token punctuation">,</span>
+			<span class="token string">"master_category"</span><span class="token punctuation">:</span> <span class="token string">"normal"</span><span class="token punctuation">,</span>
+			<span class="token string">"amended_reliability"</span><span class="token punctuation">:</span> <span class="token string">"0"</span><span class="token punctuation">,</span>
+			<span class="token string">"is_exists"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+			<span class="token string">"title"</span><span class="token punctuation">:</span> <span class="token string">"\u6293\u4f4f\u8868\u8fbe\u6b32"</span><span class="token punctuation">,</span>
+			<span class="token string">"url"</span><span class="token punctuation">:</span> <span class="token string">"https://www.guokr.com/i/0458479280/"</span><span class="token punctuation">,</span>
+			<span class="token string">"gender"</span><span class="token punctuation">:</span> <span class="token string">"male"</span><span class="token punctuation">,</span>
+			<span class="token string">"followers_count"</span><span class="token punctuation">:</span> <span class="token number">34</span><span class="token punctuation">,</span>
+			<span class="token string">"avatar"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+				<span class="token string">"large"</span><span class="token punctuation">:</span> <span class="token string">"https://2-im.guokr.com/3QE6l-9tPaKLDhT84toa0vV_qxTQlkUNNKyuobuofl-gAAAAoAAAAEpQ.jpg?imageView2/1/w/160/h/160"</span><span class="token punctuation">,</span>
+				<span class="token string">"small"</span><span class="token punctuation">:</span> <span class="token string">"https://2-im.guokr.com/3QE6l-9tPaKLDhT84toa0vV_qxTQlkUNNKyuobuofl-gAAAAoAAAAEpQ.jpg?imageView2/1/w/24/h/24"</span><span class="token punctuation">,</span>
+				<span class="token string">"normal"</span><span class="token punctuation">:</span> <span class="token string">"https://2-im.guokr.com/3QE6l-9tPaKLDhT84toa0vV_qxTQlkUNNKyuobuofl-gAAAAoAAAAEpQ.jpg?imageView2/1/w/48/h/48"</span>
+			<span class="token punctuation">}</span><span class="token punctuation">,</span>
+			<span class="token string">"resource_url"</span><span class="token punctuation">:</span> <span class="token string">"https://apis.guokr.com/community/user/7kysvk.json"</span>
+		<span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+		<span class="token string">"replies_count"</span><span class="token punctuation">:</span> <span class="token number">7</span><span class="token punctuation">,</span>
+		<span class="token string">"is_author_external"</span><span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+		<span class="token string">"recommends_count"</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+		<span class="token string">"title_hide"</span><span class="token punctuation">:</span> <span class="token string">"\u7eb3\u7c73\u673a\u5668\u4eba\uff0c\u771f\u6709\u4f20\u8bf4\u7684\u90a3\u4e48\u795e\u5417\uff1f"</span><span class="token punctuation">,</span>
+		<span class="token string">"date_modified"</span><span class="token punctuation">:</span> <span class="token string">"2019-10-30T15:25:32.881462+08:00"</span><span class="token punctuation">,</span>
+		<span class="token string">"url"</span><span class="token punctuation">:</span> <span class="token string">"https://www.guokr.com/article/454947/"</span><span class="token punctuation">,</span>
+		<span class="token string">"title"</span><span class="token punctuation">:</span> <span class="token string">"\u7eb3\u7c73\u673a\u5668\u4eba\uff0c\u771f\u6709\u4f20\u8bf4\u7684\u90a3\u4e48\u795e\u5417\uff1f"</span><span class="token punctuation">,</span>
+		<span class="token string">"small_image"</span><span class="token punctuation">:</span> <span class="token string">"https://2-im.guokr.com/LzCb_4lAe8TN7J1vFduyVrtGMIbNIdbRTUqp3iLGDZkCAwAAIAIAAEpQ.jpg"</span><span class="token punctuation">,</span>
+		<span class="token string">"summary"</span><span class="token punctuation">:</span> <span class="token string">"\u672a\u6765\u5e76\u4e0d\u9065\u8fdc\uff0c\u4f46\u4e5f\u6ca1\u90a3\u4e48\u8fd1\u3002"</span><span class="token punctuation">,</span>
+		<span class="token string">"is_liyan_article"</span><span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+		<span class="token string">"ukey_author"</span><span class="token punctuation">:</span> <span class="token string">"7kysvk"</span><span class="token punctuation">,</span>
+		<span class="token string">"date_created"</span><span class="token punctuation">:</span> <span class="token string">"2019-11-01T12:25:38.179681+08:00"</span><span class="token punctuation">,</span>
+		<span class="token string">"resource_url"</span><span class="token punctuation">:</span> <span class="token string">"https://apis.guokr.com/minisite/article/454947.json"</span>
+	<span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+	<span class="token string">"offset"</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+	<span class="token string">"total"</span><span class="token punctuation">:</span> <span class="token number">12350</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<pre><code class="prism language-py"><span class="token keyword">import</span> json
+<span class="token keyword">import</span> random
+<span class="token keyword">import</span> time
+<span class="token keyword">from</span> multiprocessing<span class="token punctuation">.</span>dummy <span class="token keyword">import</span> Pool <span class="token keyword">as</span> ThreadPool
+
+<span class="token keyword">import</span> requests
+<span class="token keyword">from</span> lxml <span class="token keyword">import</span> etree
+<span class="token keyword">from</span> requests <span class="token keyword">import</span> urllib3
+
+proxies_list <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+
+user_agent <span class="token operator">=</span> <span class="token punctuation">[</span>
+		<span class="token string">'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36 OPR/26.0.1656.60'</span><span class="token punctuation">,</span>
+		<span class="token string">'Opera/8.0 (Windows NT 5.1; U; en)'</span><span class="token punctuation">,</span>
+		<span class="token string">'Mozilla/5.0 (Windows NT 5.1; U; en; rv:1.8.1) Gecko/20061208 Firefox/2.0.0 Opera 9.50'</span><span class="token punctuation">,</span>
+		<span class="token string">'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; en) Opera 9.50'</span><span class="token punctuation">,</span>
+		<span class="token string">'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0'</span><span class="token punctuation">,</span>
+		<span class="token string">'Mozilla/5.0 (X11; U; Linux x86_64; zh-CN; rv:1.9.2.10) Gecko/20100922 Ubuntu/10.10 (maverick) Firefox/3.6.10'</span><span class="token punctuation">,</span>
+		<span class="token string">'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534.57.2 (KHTML, like Gecko) Version/5.1.7 Safari/534.57.2 '</span><span class="token punctuation">,</span>
+		<span class="token string">'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36'</span><span class="token punctuation">,</span>
+		<span class="token string">'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'</span><span class="token punctuation">,</span>
+		<span class="token string">'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.133 Safari/534.16'</span><span class="token punctuation">,</span>
+		<span class="token string">'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36'</span><span class="token punctuation">,</span>
+		<span class="token string">'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko'</span><span class="token punctuation">,</span>
+		<span class="token string">'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.11 TaoBrowser/2.0 Safari/536.11'</span><span class="token punctuation">,</span>
+		<span class="token string">'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.71 Safari/537.1 LBBROWSER'</span><span class="token punctuation">,</span>
+		<span class="token string">'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; QQDownload 732; .NET4.0C; .NET4.0E)'</span><span class="token punctuation">,</span>
+		<span class="token string">'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.84 Safari/535.11 SE 2.X MetaSr 1.0'</span><span class="token punctuation">,</span>
+		<span class="token string">'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; SV1; QQDownload 732; .NET4.0C; .NET4.0E; SE 2.X MetaSr 1.0)'</span>
+<span class="token punctuation">]</span>
+
+
+<span class="token keyword">def</span> <span class="token function">get_header</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">:</span>
+    headers <span class="token operator">=</span> <span class="token punctuation">{</span>
+            <span class="token string">'Accept'</span><span class="token punctuation">:</span> <span class="token string">'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3'</span><span class="token punctuation">,</span>
+            <span class="token string">'Accept-Encoding'</span><span class="token punctuation">:</span> <span class="token string">'gzip, deflate, br'</span><span class="token punctuation">,</span>
+            <span class="token string">'Accept-Language'</span><span class="token punctuation">:</span> <span class="token string">'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7'</span><span class="token punctuation">,</span>
+            <span class="token string">'Cache-Control'</span><span class="token punctuation">:</span> <span class="token string">'max-age=0'</span><span class="token punctuation">,</span>
+            <span class="token string">'Connection'</span><span class="token punctuation">:</span> <span class="token string">'keep-alive'</span><span class="token punctuation">,</span>
+            <span class="token string">'User-Agent'</span><span class="token punctuation">:</span> <span class="token string">'random.choice(user_agent)'</span>
+        <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> headers
+
+
+<span class="token keyword">def</span> <span class="token function">load_proxy</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">:</span>
+    <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'ips_pool.csv'</span><span class="token punctuation">,</span> <span class="token string">'r'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+        datas <span class="token operator">=</span> f<span class="token punctuation">.</span>readlines<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">global</span> proxies_list
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> datas <span class="token punctuation">:</span>
+        ip <span class="token operator">=</span> i<span class="token punctuation">.</span>split<span class="token punctuation">(</span><span class="token string">','</span><span class="token punctuation">)</span>
+        proxies <span class="token operator">=</span> <span class="token punctuation">{</span>ip<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">:</span> ip<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">+</span> <span class="token string">':'</span> <span class="token operator">+</span> ip<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">}</span>
+        proxies_list<span class="token punctuation">.</span>append<span class="token punctuation">(</span>proxies<span class="token punctuation">)</span>
+
+
+<span class="token keyword">def</span> <span class="token function">save_json</span><span class="token punctuation">(</span>add_js<span class="token punctuation">,</span> page<span class="token punctuation">)</span> <span class="token punctuation">:</span>
+    <span class="token comment"># print(f'ajax/data{page}.json')</span>
+    f <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span>f<span class="token string">'ajax/data{page}.json'</span><span class="token punctuation">,</span> <span class="token string">'r'</span><span class="token punctuation">,</span> encoding<span class="token operator">=</span><span class="token string">'utf-8'</span><span class="token punctuation">)</span>
+    js <span class="token operator">=</span> json<span class="token punctuation">.</span>loads<span class="token punctuation">(</span>f<span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    f<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    lis <span class="token operator">=</span> js<span class="token punctuation">[</span><span class="token string">'art'</span><span class="token punctuation">]</span>
+    lis<span class="token punctuation">.</span>append<span class="token punctuation">(</span>add_js<span class="token punctuation">)</span>
+    js<span class="token punctuation">[</span><span class="token string">'art'</span><span class="token punctuation">]</span> <span class="token operator">=</span> lis
+    <span class="token comment"># print(lis)</span>
+    f <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span>f<span class="token string">'ajax/data{page}.json'</span><span class="token punctuation">,</span> <span class="token string">'w'</span><span class="token punctuation">,</span> encoding<span class="token operator">=</span><span class="token string">'utf-8'</span><span class="token punctuation">)</span>
+    f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>json<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>js<span class="token punctuation">,</span> ensure_ascii<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span> indent<span class="token operator">=</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    f<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+
+<span class="token keyword">def</span> <span class="token function">get_info</span><span class="token punctuation">(</span>js<span class="token punctuation">,</span> page<span class="token punctuation">)</span> <span class="token punctuation">:</span>
+    info <span class="token operator">=</span> js<span class="token punctuation">[</span><span class="token string">'result'</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> info <span class="token punctuation">:</span>
+        info_dict <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+        info_dict<span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">]</span> <span class="token operator">=</span> i<span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">]</span> <span class="token comment"># 文章id https://www.guokr.com/article/id</span>
+        j <span class="token operator">=</span> i<span class="token punctuation">[</span><span class="token string">'authors'</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token comment"># https://apis.guokr.com/community/user/ ~7jsn00~.json~</span>
+        info_dict<span class="token punctuation">[</span><span class="token string">'nickname'</span><span class="token punctuation">]</span> <span class="token operator">=</span> j<span class="token punctuation">[</span><span class="token string">'nickname'</span><span class="token punctuation">]</span> <span class="token comment"># authors name</span>
+        info_dict<span class="token punctuation">[</span><span class="token string">'ukey'</span><span class="token punctuation">]</span> <span class="token operator">=</span> j<span class="token punctuation">[</span><span class="token string">'ukey'</span><span class="token punctuation">]</span> <span class="token comment"># authors ukey</span>
+
+        subject <span class="token operator">=</span> i<span class="token punctuation">[</span><span class="token string">'subject'</span><span class="token punctuation">]</span> <span class="token comment"># 文章类别</span>
+        info_dict<span class="token punctuation">[</span><span class="token string">'class'</span><span class="token punctuation">]</span> <span class="token operator">=</span> subject<span class="token punctuation">[</span><span class="token string">'key'</span><span class="token punctuation">]</span>
+        info_dict<span class="token punctuation">[</span><span class="token string">'title'</span><span class="token punctuation">]</span> <span class="token operator">=</span> i<span class="token punctuation">[</span><span class="token string">'title'</span><span class="token punctuation">]</span>
+        info_dict<span class="token punctuation">[</span><span class="token string">'summary'</span><span class="token punctuation">]</span> <span class="token operator">=</span> i<span class="token punctuation">[</span><span class="token string">'summary'</span><span class="token punctuation">]</span>
+
+        save_json<span class="token punctuation">(</span>info_dict<span class="token punctuation">,</span> page<span class="token punctuation">)</span>
+
+
+<span class="token keyword">def</span> <span class="token function">get_json</span><span class="token punctuation">(</span>url<span class="token punctuation">)</span> <span class="token punctuation">:</span>
+    <span class="token keyword">while</span> <span class="token number">1</span> <span class="token punctuation">:</span>
+        <span class="token keyword">try</span> <span class="token punctuation">:</span>
+            html <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">,</span> headers<span class="token operator">=</span>get_header<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> proxies<span class="token operator">=</span>random<span class="token punctuation">.</span>choice<span class="token punctuation">(</span>proxies_list<span class="token punctuation">)</span><span class="token punctuation">,</span> timeout<span class="token operator">=</span><span class="token number">3</span><span class="token punctuation">)</span>
+            js <span class="token operator">=</span> json<span class="token punctuation">.</span>loads<span class="token punctuation">(</span>html<span class="token punctuation">.</span>text<span class="token punctuation">)</span>
+            <span class="token keyword">return</span> js
+        <span class="token keyword">except</span> Exception <span class="token keyword">as</span> e<span class="token punctuation">:</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span>
+
+
+<span class="token keyword">def</span> <span class="token function">sol</span><span class="token punctuation">(</span>url<span class="token punctuation">,</span> page<span class="token punctuation">)</span> <span class="token punctuation">:</span>
+    json <span class="token operator">=</span> get_json<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+    get_info<span class="token punctuation">(</span>json<span class="token punctuation">,</span> page<span class="token punctuation">)</span>
+
+
+<span class="token keyword">def</span> <span class="token function">creat_file</span><span class="token punctuation">(</span>page<span class="token punctuation">)</span> <span class="token punctuation">:</span>
+    f <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span>f<span class="token string">'ajax/data{page}.json'</span><span class="token punctuation">,</span> <span class="token string">'w+'</span><span class="token punctuation">,</span> encoding<span class="token operator">=</span><span class="token string">'utf-8'</span><span class="token punctuation">)</span>
+    f<span class="token punctuation">.</span>write<span class="token punctuation">(</span><span class="token string">'{"art":[]}'</span><span class="token punctuation">)</span>
+    f<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span> <span class="token punctuation">:</span>
+    <span class="token comment"># save_json({'1':'2'}, 1)</span>
+    load_proxy<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    base_url <span class="token operator">=</span> <span class="token string">'https://www.guokr.com/apis/minisite/article.json?retrieve_type=by_subject&amp;limit=20&amp;offset={}'</span>
+    offset <span class="token operator">=</span> <span class="token number">0</span>
+    cnt <span class="token operator">=</span> <span class="token number">9</span>
+    page <span class="token operator">=</span> <span class="token number">0</span>
+    <span class="token keyword">while</span> offset <span class="token operator">&lt;</span> <span class="token number">12350</span> <span class="token punctuation">:</span>
+        cnt <span class="token operator">=</span> cnt <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>cnt <span class="token operator">==</span> <span class="token number">10</span><span class="token punctuation">)</span> <span class="token punctuation">:</span>
+            cnt <span class="token operator">=</span> <span class="token number">0</span>
+            page <span class="token operator">=</span> page <span class="token operator">+</span> <span class="token number">1</span>
+            creat_file<span class="token punctuation">(</span>page<span class="token punctuation">)</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'第 '</span> <span class="token operator">+</span> <span class="token builtin">str</span><span class="token punctuation">(</span>page<span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">' * 20 条目完成/ 最后一页只有10个 '</span> <span class="token operator">+</span> <span class="token builtin">str</span><span class="token punctuation">(</span>page <span class="token operator">*</span> <span class="token number">20</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">'/ 12350'</span><span class="token punctuation">)</span>
+            
+        url <span class="token operator">=</span> base_url<span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>offset<span class="token punctuation">)</span>
+        sol<span class="token punctuation">(</span>url<span class="token punctuation">,</span> page<span class="token punctuation">)</span>
+        offset <span class="token operator">=</span> offset <span class="token operator">+</span> <span class="token number">20</span>
+</code></pre>
+</div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>python爬虫入门_练习三_登录无加密网站_模拟登录_(post提交)</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<h4><a id="_0"></a>前言</h4>
+<p>作为requests.post的练习 本次就比较简单了 代码比之前的不知道少了多少23333<br/>
+这次只是选了一个登录只是简单的 post 账户名和密码 的论坛 知乎和其他网站现在都有要用打某个页面下载后某个json文件的关键值取作hash 验证是不是机器人醉了 目前还没有学会</p>
+<h4><a id="_4"></a>正文</h4>
+<p>这里我检验自己的方式是 模拟登录 获得 刚注册系统发来的提示信息</p>
+<h4><a id="1_7"></a>步骤1</h4>
+<p>既然是用post 进行登录 我们显然要知道post到那个url<br/>
+这里我使用IE的Devtools 获得找到post方法对应的url <s>F12</s><br/>
+这里先自己手动登录找到post请求<img alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20191111192025936.png"/></p>
+<h4><a id="2_11"></a>步骤2</h4>
+<p>我们想要获得登录之后的数据 首先要确保自己爬虫登录后是保持链接的<br/>
+这里有<br/>
+<code>session = requests.Session()</code> 能请求保持某些参数</p>
+<h4><a id="3_16"></a>步骤3</h4>
+<p>登录并获得系统私信代码<br/>
+登录代码</p>
+<pre><code class="prism language-py">headers <span class="token operator">=</span> <span class="token punctuation">{</span>
+   <span class="token string">'User-Agent'</span><span class="token punctuation">:</span><span class="token string">'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18362'</span>
+<span class="token punctuation">}</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+   <span class="token string">'username'</span><span class="token punctuation">:</span> <span class="token string">''</span><span class="token punctuation">,</span>
+   <span class="token string">'password'</span><span class="token punctuation">:</span> <span class="token string">''</span>
+<span class="token punctuation">}</span>
+session <span class="token operator">=</span> requests<span class="token punctuation">.</span>Session<span class="token punctuation">(</span><span class="token punctuation">)</span>
+session<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token operator">=</span><span class="token string">'https://www.1point3acres.com/bbs/member.php?mod=logging&amp;action=login&amp;loginsubmit=yes&amp;infloat=yes&amp;lssubmit=yes&amp;inajax=1'</span><span class="token punctuation">,</span> headers<span class="token operator">=</span>headers<span class="token punctuation">,</span> data<span class="token operator">=</span>data<span class="token punctuation">)</span>
+</code></pre>
+<p>获得 系统私信代码 进入消息页面 找到html对应路径就好 如果你看了前2练习 这里应该非常简单<br/>
+这里看到页面是gdk 文件写入encoding(‘gb2312’)</p>
+<pre><code class="prism language-py">res <span class="token operator">=</span> session<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token operator">=</span><span class="token string">'https://www.1point3acres.com/bbs/home.php?mod=space&amp;do=notice&amp;view=system'</span><span class="token punctuation">,</span> headers<span class="token operator">=</span>headers<span class="token punctuation">,</span> timeout<span class="token operator">=</span><span class="token number">5</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>res<span class="token punctuation">.</span>encoding<span class="token punctuation">)</span>
+soup <span class="token operator">=</span> BeautifulSoup<span class="token punctuation">(</span>res<span class="token punctuation">.</span>text<span class="token punctuation">)</span>
+f <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'html.txt'</span><span class="token punctuation">,</span> <span class="token string">"w+"</span><span class="token punctuation">,</span> encoding<span class="token operator">=</span><span class="token string">'gb2312'</span><span class="token punctuation">)</span>
+f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>res<span class="token punctuation">.</span>text<span class="token punctuation">)</span>
+f<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+chk <span class="token operator">=</span> soup<span class="token punctuation">.</span>find<span class="token punctuation">(</span><span class="token string">'dd'</span><span class="token punctuation">,</span> class_<span class="token operator">=</span><span class="token string">'ntc_body'</span><span class="token punctuation">)</span>
+f <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'ymsfd_login/chk.txt'</span><span class="token punctuation">,</span> <span class="token string">'w+'</span><span class="token punctuation">)</span>
+f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>chk<span class="token punctuation">.</span>text<span class="token punctuation">)</span>
+f<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+<p>以下完整代码</p>
+<pre><code class="prism language-py"><span class="token keyword">import</span> time
+<span class="token keyword">import</span> requests
+<span class="token keyword">from</span> bs4 <span class="token keyword">import</span> BeautifulSoup
+
+headers <span class="token operator">=</span> <span class="token punctuation">{</span>
+   <span class="token string">'User-Agent'</span><span class="token punctuation">:</span><span class="token string">'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18362'</span>
+<span class="token punctuation">}</span>
+url <span class="token operator">=</span> <span class="token string">'https://www.1point3acres.com/bbs/member.php?mod=logging&amp;action=login&amp;loginsubmit=yes&amp;infloat=yes&amp;lssubmit=yes&amp;inajax=1'</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+   <span class="token string">'username'</span><span class="token punctuation">:</span> <span class="token string">''</span><span class="token punctuation">,</span>
+   <span class="token string">'password'</span><span class="token punctuation">:</span> <span class="token string">''</span>
+<span class="token punctuation">}</span>
+session <span class="token operator">=</span> requests<span class="token punctuation">.</span>Session<span class="token punctuation">(</span><span class="token punctuation">)</span>
+session<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token operator">=</span><span class="token string">'https://www.1point3acres.com/bbs/member.php?mod=logging&amp;action=login&amp;loginsubmit=yes&amp;infloat=yes&amp;lssubmit=yes&amp;inajax=1'</span><span class="token punctuation">,</span> headers<span class="token operator">=</span>headers<span class="token punctuation">,</span> data<span class="token operator">=</span>data<span class="token punctuation">)</span>
+
+res <span class="token operator">=</span> session<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token operator">=</span><span class="token string">'https://www.1point3acres.com/bbs/home.php?mod=space&amp;do=notice&amp;view=system'</span><span class="token punctuation">,</span> headers<span class="token operator">=</span>headers<span class="token punctuation">,</span> timeout<span class="token operator">=</span><span class="token number">5</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>res<span class="token punctuation">.</span>encoding<span class="token punctuation">)</span>
+soup <span class="token operator">=</span> BeautifulSoup<span class="token punctuation">(</span>res<span class="token punctuation">.</span>text<span class="token punctuation">)</span>
+f <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'html.txt'</span><span class="token punctuation">,</span> <span class="token string">"w+"</span><span class="token punctuation">,</span> encoding<span class="token operator">=</span><span class="token string">'gb2312'</span><span class="token punctuation">)</span>
+f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>res<span class="token punctuation">.</span>text<span class="token punctuation">)</span>
+f<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+chk <span class="token operator">=</span> soup<span class="token punctuation">.</span>find<span class="token punctuation">(</span><span class="token string">'dd'</span><span class="token punctuation">,</span> class_<span class="token operator">=</span><span class="token string">'ntc_body'</span><span class="token punctuation">)</span>
+f <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'ymsfd_login/chk.txt'</span><span class="token punctuation">,</span> <span class="token string">'w+'</span><span class="token punctuation">)</span>
+f<span class="token punctuation">.</span>write<span class="token punctuation">(</span>chk<span class="token punctuation">.</span>text<span class="token punctuation">)</span>
+f<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+session<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre>
+</div>
+</body>
+</html>

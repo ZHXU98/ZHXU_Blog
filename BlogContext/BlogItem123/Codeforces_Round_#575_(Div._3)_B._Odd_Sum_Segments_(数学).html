@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>Codeforces_Round_#575_(Div._3)_B._Odd_Sum_Segments_(数学)</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<h2><a id="B_Odd_Sum_Segments_0"></a>B. Odd Sum Segments</h2>
+<p><a data-token="065e7dc22b3dd33d841b17fba74258c5" href="https://codeforces.com/contest/1196/problem/B" rel="nofollow">https://codeforces.com/contest/1196/problem/B</a></p>
+<p>给了你一个序列 让你把他们分成k段 每段都是奇数<br/>
+对k段求sum(这一段的奇数数量)  最后他们的和 是奇数的总和<br/>
+这样的话 k 是奇数 那么 奇数的个数也是奇数<br/>
+他们的奇偶性是一样的<br/>
+然后 确保 cnt &gt;= k 每段都分一个  剩下的都给最后一段端</p>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+const int maxn = 2e5 + 5;
+ 
+int n, m, k, cas;
+int a[maxn];
+ 
+signed main() {
+    cin &gt;&gt; cas;
+    while(cas --) {
+        cin &gt;&gt; n &gt;&gt; k;
+        int odd = 0;
+        for(int i = 1; i &lt;= n; i ++) {
+            cin &gt;&gt; a[i];
+            if(a[i] &amp; 1) odd ++;
+        }
+        if(odd &lt; k || (k % 2 != odd % 2)) {
+            cout &lt;&lt; "NO" &lt;&lt; endl;
+        } else {
+            int pos = 0;
+            cout &lt;&lt; "YES" &lt;&lt; endl;
+            for(int i = 1; i &lt; n; i ++) {
+                if(a[i] &amp; 1) {
+                    if(pos == k - 1) break;
+                    else cout &lt;&lt; i &lt;&lt; " ";
+                    pos ++;
+                }
+            }
+            cout &lt;&lt; n &lt;&lt; endl;
+        }
+    }
+    return 0;
+}
+</code></pre>
+</div>
+</body>
+</html>

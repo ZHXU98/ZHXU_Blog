@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>【STL+输入输出挂】数据流中的算法_-_众数_51Nod_-_1786</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<p>数据流统计功能上线后，为51nod提升用户体验做出了很大的贡献。但是新问题随之而来，夹克老爷还想知道在一个窗口内，访问次数最多用户（即窗口内的众数）。如果有多个众数，取用户ID最小的一个。（窗口的意思是一个固定长度的区间！） </p>
+<p>（因为数据流是实时的、在线的，所以不允许使用离线算法^_^）  <br/>
+Input <br/>
+第一行为整数n, k。(1 &lt;= n &lt;= 5 * 10^6，1 &lt;= k &lt;= 1000）  <br/>
+n代表有多少次操作，k代表窗口大小。 </p>
+<p>接下来的n行，每行代表一次操作。每行第一个整数为操作数。 </p>
+<p>操作数1：用户访问  <br/>
+输入格式: &lt;1, id&gt;  <br/>
+用户ID为 <br/>
+0,IN <br/>
+T <br/>
+M <br/>
+AX <br/>
+0,INTMAX <br/>
+闭区间内的整数。代表拥有此ID的用户对网站进行了一次访问，窗口进行相应移动。 </p>
+<p>操作数2：询问众数  <br/>
+输入格式：&lt;2&gt;  <br/>
+输出窗口内的众数，如果有多个，输出ID最小的那个。 </p>
+<p>p.s. 对于询问众数的操作，窗口保证不空  <br/>
+p.s.s. 对于询问众数的操作，窗口可能不满 <br/>
+Output <br/>
+对于询问众数的操作，每行输出一个整数。 <br/>
+Sample Input <br/>
+10 5 <br/>
+1 2 <br/>
+1 1 <br/>
+1 2 <br/>
+1 1  <br/>
+1 2 <br/>
+1 1 <br/>
+2 <br/>
+1 3 <br/>
+1 3 <br/>
+2</p>
+<p>这题被学长说 水…… <br/>
+然而 我超时和wa能玩一年。。。。 <br/>
+ps 输入输出挂+个别STL居然还能那样写 也是精了orz</p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstdlib&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cmath&gt;</span>
+<span class="hljs-preprocessor">#include &lt;vector&gt;</span>
+<span class="hljs-preprocessor">#include &lt;map&gt;</span>
+<span class="hljs-preprocessor">#include &lt;string&gt;</span>
+<span class="hljs-preprocessor">#include &lt;queue&gt;</span>
+<span class="hljs-preprocessor">#include &lt;stack&gt;</span>
+<span class="hljs-preprocessor">#include &lt;set&gt;</span>
+<span class="hljs-preprocessor">#include &lt;list&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn=<span class="hljs-number">10000000</span>;
+<span class="hljs-keyword">int</span> n,k;
+
+<span class="hljs-keyword">struct</span> node{
+    <span class="hljs-keyword">int</span> id,cnt;
+    <span class="hljs-keyword">friend</span> <span class="hljs-keyword">bool</span> <span class="hljs-keyword">operator</span> &lt;(node a,node b){
+        <span class="hljs-keyword">return</span> a.id&lt;b.id||a.id==b.id&amp;&amp;a.cnt&gt;b.cnt;
+    }
+};
+
+<span class="hljs-stl_container"><span class="hljs-built_in">set</span>&lt;node&gt;</span> cid;
+<span class="hljs-stl_container"><span class="hljs-built_in">map</span>&lt;<span class="hljs-keyword">int</span>,<span class="hljs-keyword">int</span>&gt;</span> idcnt;
+
+<span class="hljs-keyword">int</span> read()
+{
+    <span class="hljs-keyword">char</span> ch=<span class="hljs-string">' '</span>;
+    <span class="hljs-keyword">int</span> ans=<span class="hljs-number">0</span>;
+    <span class="hljs-keyword">while</span>(ch&lt;<span class="hljs-string">'0'</span> || ch&gt;<span class="hljs-string">'9'</span>)
+        ch=getchar();
+    <span class="hljs-keyword">while</span>(ch&lt;=<span class="hljs-string">'9'</span> &amp;&amp; ch&gt;=<span class="hljs-string">'0'</span>)
+    {
+        ans=ans*<span class="hljs-number">10</span>+ch-<span class="hljs-string">'0'</span>;
+        ch=getchar();
+    }
+    <span class="hljs-keyword">return</span> ans;
+}
+<span class="hljs-keyword">void</span> out(<span class="hljs-keyword">int</span> a)
+{
+    <span class="hljs-keyword">if</span>(a &gt; <span class="hljs-number">9</span>)
+    {
+        out(a/<span class="hljs-number">10</span>);
+    }
+    <span class="hljs-built_in">putchar</span>(a%<span class="hljs-number">10</span> + <span class="hljs-string">'0'</span>);
+}
+
+<span class="hljs-keyword">int</span> main(){
+        n=read();
+        k=read();
+        <span class="hljs-stl_container"><span class="hljs-built_in">queue</span>&lt;<span class="hljs-keyword">int</span>&gt;</span> que;
+        <span class="hljs-keyword">int</span> cmd,id,pos=<span class="hljs-number">0</span>;
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;n;i++){
+            cmd=read();
+            <span class="hljs-keyword">if</span>(cmd==<span class="hljs-number">1</span>){
+                id=read();
+                que.push(id);
+                idcnt[id]++;
+                pos++;
+                cid.insert(node{id,idcnt[id]});
+                <span class="hljs-keyword">if</span>(pos&gt;k){
+                    pos--;
+                    <span class="hljs-keyword">int</span> t=que.front();  que.pop();
+                    cid.erase(node{t,idcnt[t]});
+                    idcnt[t]--;
+                    <span class="hljs-keyword">if</span>(idcnt[t]!=<span class="hljs-number">0</span>){
+                        cid.insert(node{t,idcnt[t]});
+                    }               
+                }
+            }
+            <span class="hljs-keyword">else</span>{
+                <span class="hljs-keyword">int</span> ansp,tmp=<span class="hljs-number">0</span>;
+                <span class="hljs-stl_container"><span class="hljs-built_in">set</span>&lt;node&gt;</span>::iterator it;
+                it=cid.begin();
+                ansp=(*it).id;
+                <span class="hljs-comment">/*
+                for(it=cid.begin();it!=cid.end();it++){
+                    int cids=*it;
+                    if(idcnt[cids]&gt;tmp){
+                        ansp=cids;
+                        tmp=idcnt[cids];
+                    }
+                }
+                */</span>
+                out(ansp);
+                <span class="hljs-built_in">printf</span>(<span class="hljs-string">"\n"</span>);
+            }
+        }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}
+</code></pre>
+</div>
+</body>
+</html>

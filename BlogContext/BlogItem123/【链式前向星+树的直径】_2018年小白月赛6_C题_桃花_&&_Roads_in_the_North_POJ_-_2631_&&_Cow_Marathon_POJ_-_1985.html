@@ -1,0 +1,392 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>【链式前向星+树的直径】_2018年小白月赛6_C题_桃花_&&_Roads_in_the_North_POJ_-_2631_&&_Cow_Marathon_POJ_-_1985</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<pre class="prettyprint"><code class="hljs cs"><span class="hljs-preprocessor">#<span class="hljs-keyword">define</span> MAXM 500010</span>
+<span class="hljs-preprocessor">#<span class="hljs-keyword">define</span> MAXN 10010</span>
+
+<span class="hljs-comment">/*
+1 结构体数组edge存边，edge[i]表示第i条边,
+2 head[i]存以i为起点的第一条边(在edge中的下标)
+*/</span>
+<span class="hljs-keyword">struct</span> EDGE{
+    <span class="hljs-keyword">int</span> next;   <span class="hljs-comment">//下一条边的存储下标 </span>
+    <span class="hljs-keyword">int</span> to;     <span class="hljs-comment">//这条边的终点 </span>
+    <span class="hljs-keyword">int</span> w;      <span class="hljs-comment">//权值 </span>
+}; 
+
+EDGE edge[MAXM];
+
+<span class="hljs-keyword">int</span> n, m, cnt;
+<span class="hljs-keyword">int</span> head[MAXN];  <span class="hljs-comment">//head[i]表示以i为起点的第一条边 </span>
+
+<span class="hljs-keyword">void</span> Add(<span class="hljs-keyword">int</span> u, <span class="hljs-keyword">int</span> v, <span class="hljs-keyword">int</span> w) {  <span class="hljs-comment">//起点u, 终点v, 权值w </span>
+    edge[++cnt].next = head[u];
+    edge[cnt].w = w;
+    edge[cnt].to = v;
+    head[u] = cnt;    <span class="hljs-comment">//第一条边为当前边 </span>
+}
+<span class="hljs-comment">/*
+2.增边：若以点i为起点的边新增了一条，在edge中的下标为j.
+那么edge[j].next=head[i];然后head[i]=j.
+即每次新加的边作为第一条边，最后倒序遍历
+ps 每次更新 都把上次存的边 结构体里next指向他 然后更新他 把j边更新到head里
+head里存的 可以说是 最后那个边出现的位置 二结构体每次存的都是上一次的 所以 就有办法遍历了
+*/</span></code></pre>
+<p>以下是牛客  <br/>
+链接：<a data-token="b62ea9f401f5882e78c1dd87de416762" href="https://www.nowcoder.com/acm/contest/136/C" rel="nofollow">https://www.nowcoder.com/acm/contest/136/C</a> <br/>
+来源：牛客网</p>
+<p>时间限制：C/C++ 1秒，其他语言2秒 <br/>
+空间限制：C/C++ 262144K，其他语言524288K <br/>
+ 64bit IO Format: %lld</p>
+<p>题目描述 <br/>
+      桃花一簇开无主，可爱深红映浅红。                                             ——《题百叶桃花》               桃花长在桃树上，树的每个节点有一个桃花，调皮的HtBest想摘尽可能多的桃花。HtBest有一个魔法棒，摘到树上任意一条链上的所有桃花，由于HtBest法力有限，只能使用一次魔法棒，请求出Htbest最多可以摘到多少个桃花。 <br/>
+输入描述: <br/>
+第一行有一个正整数n，表示桃树的节点个数。接下来n-1行，第i行两个正整数ai,bi ，表示桃树上的节点ai,bi之间有一条边。 <br/>
+输出描述: <br/>
+第一行一个整数，表示HtBest使用一次魔法棒最多可以摘到多少桃花。 <br/>
+对于100%的测试数据： <br/>
+1 ≤ n ≤ 1000000 <br/>
+数据量较大，注意使用更快的输入输出方式。 <br/>
+输入 <br/>
+3 <br/>
+1 2 <br/>
+2 3 <br/>
+输出 <br/>
+3</p>
+<p>以下两种实现  <br/>
+分别 BFS和dfs 遍历方式 都是for 一直到I==-1 停止 <br/>
+算是求某点到其他点距离的更快方法。。。 <br/>
+刚做这题 用 dijkstra2次找最远点 炸了</p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cmath&gt;</span>
+<span class="hljs-preprocessor">#include &lt;vector&gt;</span>
+<span class="hljs-preprocessor">#include &lt;map&gt;</span>
+<span class="hljs-preprocessor">#include &lt;queue&gt;</span>
+<span class="hljs-preprocessor">#include &lt;stack&gt;</span>
+<span class="hljs-preprocessor">#include &lt;set&gt;</span>
+<span class="hljs-preprocessor">#include &lt;list&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn=<span class="hljs-number">1000000</span>+<span class="hljs-number">5</span>;
+<span class="hljs-keyword">int</span> head[maxn];
+<span class="hljs-keyword">bool</span> vis[maxn];
+<span class="hljs-keyword">int</span> cnt,n,u,v;
+<span class="hljs-keyword">int</span> d[maxn];
+
+
+<span class="hljs-keyword">struct</span> node{
+    <span class="hljs-keyword">int</span> next,to,cost;
+    node(<span class="hljs-keyword">int</span> t,<span class="hljs-keyword">int</span> n,<span class="hljs-keyword">int</span> c){next=n;to=t;cost=c;}
+    node(){};
+}edge[maxn&lt;&lt;<span class="hljs-number">1</span>];
+
+<span class="hljs-keyword">void</span> addedge(<span class="hljs-keyword">int</span> u,<span class="hljs-keyword">int</span> v,<span class="hljs-keyword">int</span> c){
+    edge[cnt]=node(u,head[v],c);
+    head[v]=cnt++;
+    edge[cnt]=node(v,head[u],c);
+    head[u]=cnt++;
+}
+
+<span class="hljs-keyword">int</span> pos,dis;
+
+<span class="hljs-keyword">void</span> dfs(<span class="hljs-keyword">int</span> u){
+    vis[u]=<span class="hljs-number">1</span>;
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=head[u];i!=-<span class="hljs-number">1</span>;i=edge[i].next){
+        <span class="hljs-keyword">if</span>(!vis[edge[i].to]){
+            d[edge[i].to]=d[u]+<span class="hljs-number">1</span>;
+            dfs(edge[i].to);
+        }
+    }
+}
+<span class="hljs-comment">/*
+void bfs(int u){
+    memset(vis,0,sizeof(vis));
+    memset(d,0,sizeof(d));
+    queue&lt;int&gt; q;
+    q.push(u);
+    d[u]=1;
+    vis[u]=1;
+    while(!q.empty()){
+        int t=q.front();q.pop();
+        for(int i=head[t];i!=-1;i=edge[i].next){
+            if(!vis[edge[i].to]){
+                vis[edge[i].to]=1;
+                dis=d[edge[i].to]=d[t]+1;
+                pos=edge[i].to;
+                q.push(edge[i].to);
+            }
+        }
+    }
+}
+*/</span>
+<span class="hljs-keyword">int</span> main(){
+    <span class="hljs-keyword">while</span>(<span class="hljs-built_in">cin</span>&gt;&gt;n){
+    cnt=<span class="hljs-number">0</span>;
+    <span class="hljs-built_in">memset</span>(head,-<span class="hljs-number">1</span>,<span class="hljs-keyword">sizeof</span>(head));
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;n-<span class="hljs-number">1</span>;i++){
+            <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d %d"</span>,&amp;u,&amp;v);
+            addedge(u,v,<span class="hljs-number">1</span>);
+        }
+        <span class="hljs-comment">/*
+        bfs(1);
+        bfs(pos);
+        cout&lt;&lt;dis&lt;&lt;endl;
+        */</span>
+        <span class="hljs-built_in">memset</span>(vis,<span class="hljs-number">0</span>,<span class="hljs-keyword">sizeof</span>(vis));
+        <span class="hljs-built_in">memset</span>(d,<span class="hljs-number">0</span>,<span class="hljs-keyword">sizeof</span>(d));
+        d[<span class="hljs-number">1</span>]=<span class="hljs-number">1</span>;
+        dfs(<span class="hljs-number">1</span>);
+        <span class="hljs-keyword">int</span> pos=<span class="hljs-number">1</span>;
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">1</span>;i&lt;=n;i++){
+            <span class="hljs-keyword">if</span>(d[i]&gt;d[pos])
+                pos=i;
+        }
+        <span class="hljs-built_in">memset</span>(vis,<span class="hljs-number">0</span>,<span class="hljs-keyword">sizeof</span>(vis)); 
+        d[pos]=<span class="hljs-number">1</span>;
+        dfs(pos);
+        dis=<span class="hljs-number">0</span>;
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">1</span>;i&lt;=n;i++){
+            <span class="hljs-keyword">if</span>(d[i]&gt;dis) dis=d[i];
+        }
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">"%d\n"</span>,dis);
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+<p>Roads in the North POJ - 2631 <br/>
+<a data-token="f2306b1592d502c2e2d2e6e351a9cb3b" href="http://poj.org/problem?id=2631" rel="nofollow">http://poj.org/problem?id=2631</a> <br/>
+这题用的 前项星 我也写不出向上面水题 那样好写的DFS了。。。orz</p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cmath&gt;</span>
+<span class="hljs-preprocessor">#include &lt;vector&gt;</span>
+<span class="hljs-preprocessor">#include &lt;map&gt;</span>
+<span class="hljs-preprocessor">#include &lt;queue&gt;</span>
+<span class="hljs-preprocessor">#include &lt;stack&gt;</span>
+<span class="hljs-preprocessor">#include &lt;set&gt;</span>
+<span class="hljs-preprocessor">#include &lt;list&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn=<span class="hljs-number">1000000</span>+<span class="hljs-number">5</span>;
+<span class="hljs-keyword">int</span> head[maxn];
+<span class="hljs-keyword">bool</span> vis[maxn];
+<span class="hljs-keyword">int</span> cnt,n,u,v,c;
+<span class="hljs-keyword">int</span> d[maxn];
+
+<span class="hljs-keyword">struct</span> node{
+    <span class="hljs-keyword">int</span> next,to,cost;
+    node(<span class="hljs-keyword">int</span> n,<span class="hljs-keyword">int</span> t,<span class="hljs-keyword">int</span> c){next=n;to=t;cost=c;}
+    node(){};
+}edge[maxn&lt;&lt;<span class="hljs-number">1</span>];
+
+<span class="hljs-keyword">void</span> addedge(<span class="hljs-keyword">int</span> u,<span class="hljs-keyword">int</span> v,<span class="hljs-keyword">int</span> c){
+    edge[cnt]=node(head[u],v,c);
+    head[u]=cnt++;
+    edge[cnt]=node(head[v],u,c);
+    head[v]=cnt++;
+}
+
+<span class="hljs-keyword">int</span> pos,dis;
+<span class="hljs-keyword">int</span> ans; 
+
+<span class="hljs-keyword">void</span> bfs(<span class="hljs-keyword">int</span> u){
+    <span class="hljs-built_in">memset</span>(vis,<span class="hljs-number">0</span>,<span class="hljs-keyword">sizeof</span>(vis));
+    <span class="hljs-built_in">memset</span>(d,<span class="hljs-number">0</span>,<span class="hljs-keyword">sizeof</span>(d));
+    <span class="hljs-stl_container"><span class="hljs-built_in">queue</span>&lt;<span class="hljs-keyword">int</span>&gt;</span> q;
+    q.push(u);
+    d[u]=<span class="hljs-number">0</span>;
+    vis[u]=<span class="hljs-number">1</span>;
+    <span class="hljs-keyword">while</span>(!q.empty()){
+        <span class="hljs-keyword">int</span> t=q.front();q.pop();
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=head[t];i!=-<span class="hljs-number">1</span>;i=edge[i].next){
+            <span class="hljs-keyword">if</span>(!vis[edge[i].to]){
+                vis[edge[i].to]=<span class="hljs-number">1</span>;
+                dis=d[edge[i].to]=d[t]+edge[i].cost;
+                <span class="hljs-keyword">if</span>(dis&gt;ans){<span class="hljs-comment">//多个判断更新</span>
+                    ans=max(dis,ans);
+                    pos=edge[i].to;
+                }
+                q.push(edge[i].to);
+            }
+        }
+    }
+}
+
+<span class="hljs-keyword">int</span> main(){ 
+<span class="hljs-built_in">memset</span>(head,-<span class="hljs-number">1</span>,<span class="hljs-keyword">sizeof</span>(head));
+cnt=<span class="hljs-number">0</span>;
+    <span class="hljs-keyword">while</span>(~<span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d %d %d"</span>,&amp;u,&amp;v,&amp;c)){
+        addedge(u,v,c); 
+    }
+    dis=<span class="hljs-number">0</span>;
+    bfs(<span class="hljs-number">1</span>);
+    ans=<span class="hljs-number">0</span>;
+    bfs(pos);
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"%d\n"</span>,ans);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+<p>Cow Marathon POJ - 1985 <br/>
+<a data-token="ae668a558fd57a9c6f46667242b6258c" href="http://poj.org/problem?id=1985" rel="nofollow">http://poj.org/problem?id=1985</a> <br/>
+板子题了 成。。。。orz</p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cmath&gt;</span>
+<span class="hljs-preprocessor">#include &lt;vector&gt;</span>
+<span class="hljs-preprocessor">#include &lt;map&gt;</span>
+<span class="hljs-preprocessor">#include &lt;queue&gt;</span>
+<span class="hljs-preprocessor">#include &lt;stack&gt;</span>
+<span class="hljs-preprocessor">#include &lt;set&gt;</span>
+<span class="hljs-preprocessor">#include &lt;list&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn=<span class="hljs-number">1000000</span>+<span class="hljs-number">5</span>;
+<span class="hljs-keyword">int</span> head[maxn];
+<span class="hljs-keyword">bool</span> vis[maxn];
+<span class="hljs-keyword">int</span> cnt,n,u,v,c;
+<span class="hljs-keyword">int</span> d[maxn];
+
+<span class="hljs-keyword">struct</span> node{
+    <span class="hljs-keyword">int</span> next,to,cost;
+    node(<span class="hljs-keyword">int</span> n,<span class="hljs-keyword">int</span> t,<span class="hljs-keyword">int</span> c){next=n;to=t;cost=c;}
+    node(){};
+}edge[maxn&lt;&lt;<span class="hljs-number">1</span>];
+
+<span class="hljs-keyword">void</span> addedge(<span class="hljs-keyword">int</span> u,<span class="hljs-keyword">int</span> v,<span class="hljs-keyword">int</span> c){
+    edge[cnt]=node(head[u],v,c);
+    head[u]=cnt++;
+    edge[cnt]=node(head[v],u,c);
+    head[v]=cnt++;
+}
+
+<span class="hljs-keyword">int</span> pos,dis;
+<span class="hljs-keyword">int</span> ans; 
+
+<span class="hljs-keyword">void</span> bfs(<span class="hljs-keyword">int</span> u){
+    <span class="hljs-built_in">memset</span>(vis,<span class="hljs-number">0</span>,<span class="hljs-keyword">sizeof</span>(vis));
+    <span class="hljs-built_in">memset</span>(d,<span class="hljs-number">0</span>,<span class="hljs-keyword">sizeof</span>(d));
+    <span class="hljs-stl_container"><span class="hljs-built_in">queue</span>&lt;<span class="hljs-keyword">int</span>&gt;</span> q;
+    q.push(u);
+    d[u]=<span class="hljs-number">0</span>;
+    vis[u]=<span class="hljs-number">1</span>;
+    <span class="hljs-keyword">while</span>(!q.empty()){
+        <span class="hljs-keyword">int</span> t=q.front();q.pop();
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=head[t];i!=-<span class="hljs-number">1</span>;i=edge[i].next){
+            <span class="hljs-keyword">if</span>(!vis[edge[i].to]){
+                vis[edge[i].to]=<span class="hljs-number">1</span>;
+                dis=d[edge[i].to]=d[t]+edge[i].cost;
+                <span class="hljs-keyword">if</span>(dis&gt;ans){<span class="hljs-comment">//多个判断更新</span>
+                    ans=max(dis,ans);
+                    pos=edge[i].to;
+                }
+                q.push(edge[i].to);
+            }
+        }
+    }
+}
+
+<span class="hljs-keyword">int</span> main(){ 
+<span class="hljs-built_in">memset</span>(head,-<span class="hljs-number">1</span>,<span class="hljs-keyword">sizeof</span>(head));
+cnt=<span class="hljs-number">0</span>;
+<span class="hljs-keyword">int</span> n,m;
+<span class="hljs-keyword">char</span> cmd[<span class="hljs-number">10</span>];
+    <span class="hljs-keyword">while</span>(~<span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d %d "</span>,&amp;n,&amp;m)){
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;m;i++){
+            <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d %d %d %s"</span>,&amp;u,&amp;v,&amp;c,cmd);
+            addedge(u,v,c); 
+        }
+        dis=<span class="hljs-number">0</span>;
+        bfs(<span class="hljs-number">1</span>);
+        ans=<span class="hljs-number">0</span>;
+        bfs(pos);
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">"%d\n"</span>,ans);
+    }
+
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+<p>附同学写的 感觉写起来方便点。。orz</p>
+<pre class="prettyprint"><code class="language-#include&lt;stdio.h&gt; hljs cpp"><span class="hljs-preprocessor">#include&lt;vector&gt;</span>
+<span class="hljs-preprocessor">#include&lt;string.h&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn = <span class="hljs-number">1e5</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> INF =<span class="hljs-number">1e9</span>;
+<span class="hljs-stl_container"><span class="hljs-built_in">vector</span>&lt;<span class="hljs-keyword">int</span>&gt;</span> G[maxn + <span class="hljs-number">5</span>];
+<span class="hljs-stl_container"><span class="hljs-built_in">vector</span>&lt;<span class="hljs-keyword">int</span>&gt;</span> V[maxn + <span class="hljs-number">5</span>];
+<span class="hljs-keyword">int</span> vis[maxn + <span class="hljs-number">5</span>];
+<span class="hljs-keyword">int</span> d[maxn + <span class="hljs-number">5</span>];
+<span class="hljs-keyword">void</span> dfs(<span class="hljs-keyword">int</span> u){
+    vis[u] = <span class="hljs-number">1</span>;
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; G[u].size() ;i++){
+        <span class="hljs-keyword">int</span> v = G[u][i];
+        <span class="hljs-keyword">if</span>(!vis[v]){
+            d[v] = d[u] + V[u][i];
+            dfs(v);
+        }
+    }
+}
+
+<span class="hljs-keyword">int</span> main(){
+    <span class="hljs-keyword">int</span> n,m;
+    <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d%d"</span>,&amp;n,&amp;m);
+
+    <span class="hljs-keyword">int</span> u,v,w;
+    <span class="hljs-keyword">char</span> c;
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; m; i++){
+        <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d%d%d"</span>,&amp;u,&amp;v,&amp;w);
+        <span class="hljs-built_in">scanf</span>(<span class="hljs-string">" %c"</span>,&amp;c);
+        G[u].push_back(v );
+        V[u].push_back(w);
+        G[v].push_back(u);
+        V[v].push_back(w);
+    }
+    <span class="hljs-built_in">memset</span>(vis,<span class="hljs-number">0</span>,<span class="hljs-keyword">sizeof</span>(vis));
+   <span class="hljs-comment">// memset(d, INF, sizeof(d));</span>
+
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = <span class="hljs-number">1</span>; i &lt;= n ;i++) d[i] = i == <span class="hljs-number">1</span>? <span class="hljs-number">0</span>:INF;
+
+    dfs(<span class="hljs-number">1</span>);
+
+    <span class="hljs-keyword">int</span> maxn = -<span class="hljs-number">1</span>;
+    <span class="hljs-keyword">int</span> flag;
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = <span class="hljs-number">1</span>; i &lt;= n ;i++){
+        <span class="hljs-keyword">if</span>(d[i] &gt; maxn &amp;&amp; d[i] != INF){
+            maxn = d[i];
+            flag = i;
+        }
+    }
+
+    <span class="hljs-built_in">memset</span>(vis, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(vis));
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = <span class="hljs-number">1</span>; i &lt;= n ; i++) d[i] = i== flag?<span class="hljs-number">0</span>:INF;
+    dfs(flag);
+
+    maxn = -<span class="hljs-number">1</span>;
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = <span class="hljs-number">1</span>; i &lt;= n; i++){
+        <span class="hljs-keyword">if</span>(d[i] &gt; maxn &amp;&amp; d[i] != INF){
+            maxn = d[i];
+        }
+    }
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"%d\n"</span>,maxn);
+}
+
+</code></pre>
+</div>
+</body>
+</html>

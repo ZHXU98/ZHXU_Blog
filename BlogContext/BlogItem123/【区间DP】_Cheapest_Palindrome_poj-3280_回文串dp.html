@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>【区间DP】_Cheapest_Palindrome_poj-3280_回文串dp</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<p>poj.org/problem?id=3280</p>
+<blockquote>
+<p>题意：给出一个由m中字母组成的长度为n的串，给出m种字母添加和删除花费的代价，求让给出的串变成回文串的代价。</p>
+<p>分析：我们知道求添加最少的字母让其回文是经典dp问题，转化成LCS求解。这个是一个很明显的区间dp<br/>
+我们定义dp [ i ] [ j ] 为区间 i 到 j 变成回文的最小代价。<br/>
+那么对于d[ i ] [ j ]有三种情况<br/>
+首先：对于一个串如果s[ i ]==s [ j ]，那么dp [ i ] [ j ]=dp[ i+1 ] [ j -1 ] ; // 已经对应构成回文串<br/>
+其次：如果dp [ i+1 ] [ j ] 改 i 变成回文串，那么dp [ i ] [ j ]=dp [ i +1 ] [ j ]+min（add [ i ]，del [ i ]）；<br/>
+最后，如果dp [ i ] [ j-1 ]改 j 变成回文串，那么dp [ i ] [ j ]=dp[ i ] [j-1 ] + min（add [ j ]，del [ j ]）；</p>
+</blockquote>
+<p> </p>
+<pre class="has"><code class="language-cpp">​#include &lt;iostream&gt;
+#include &lt;cstdio&gt;
+#include &lt;cmath&gt;
+#include &lt;algorithm&gt;
+#include &lt;cstring&gt;
+#include &lt;map&gt;
+#include &lt;queue&gt;
+#include &lt;set&gt;
+#include &lt;stack&gt;
+#include &lt;list&gt; 
+using namespace std;
+typedef long long ll;
+
+const int maxn = 2*1e3+10;
+const int mod = 1e9+7;
+const int INF = 0x3f3f3f3f;
+const double PI=acos(-1.0);
+
+int v[300];
+int dp[maxn][maxn];
+string str;
+int n,m,x,y;
+char ch;
+
+int main(){
+	cin&gt;&gt;n&gt;&gt;m;
+	cin&gt;&gt;str;
+	memset(v,INF,sizeof(v));
+	for(int i=0;i&lt;n;i++){
+		cin&gt;&gt;ch&gt;&gt;x&gt;&gt;y;
+		v[int(ch)]=min(x,y);
+	}
+	for(int j=1;j&lt;m;j++){
+		for(int i=j-1;i&gt;=0;i--){
+			if(str[i]==str[j]) dp[i][j]=dp[i+1][j-1];
+			else dp[i][j]=min(dp[i+1][j]+v[str[i]],dp[i][j-1]+v[str[j]]);
+		}
+	}
+	cout&lt;&lt;dp[0][m-1]&lt;&lt;endl;
+	
+	return 0;
+} ​</code></pre>
+<p> </p>
+<p> </p>
+</div>
+</body>
+</html>

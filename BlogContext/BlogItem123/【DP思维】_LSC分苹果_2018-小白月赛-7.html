@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>【DP思维】_LSC分苹果_2018-小白月赛-7</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<p>链接：<a data-token="3a7551e72b366d67b967857be866b220" href="https://www.nowcoder.com/acm/contest/190/G" rel="nofollow">https://www.nowcoder.com/acm/contest/190/G</a> <br/>
+来源：牛客网</p>
+<p>CLS 分苹果</p>
+<p>orz 我好菜啊  dp数组大小 一直开的205 orz</p>
+<p>时间限制：C/C++ 1秒，其他语言2秒 <br/>
+空间限制：C/C++ 32768K，其他语言65536K <br/>
+ 64bit IO Format: %lld</p>
+<p>题目描述</p>
+<p>CSL手上有n个苹果，第i个苹果的质量是wi，现在他想把这些苹果分给他的好朋友wavator和tokitsukaze。但是CSL为了不让他们打架，根据质量决定尽量地均分成两堆分给他们。现在CSL想知道到底给每个人分多少质量的苹果。  注意：苹果不能劈开来，并且如果不能正好均分，tokitsukaze小姐姐会拿到重的那一堆。 <br/>
+输入描述: <br/>
+第一行输入一个整数n(2 ≤ n ≤ 100)，第二行n个整数，表示每个苹果的质量wi(1 ≤ wi ≤ 100)。 <br/>
+输出描述: <br/>
+输出两个整数，分别表示wavator和tokitsukaze得到的苹果的质量。</p>
+<p>示例1</p>
+<p>输入</p>
+<p>3 <br/>
+2 2 2</p>
+<p>输出</p>
+<p>2 4 <br/>
+官方题解： <br/>
+G CSL 分苹果 做一个容量为 ⌊∑wi 2 ⌋ 的 01 背包即可得到 Wavator 分到苹果。 数据范围较小，各种正确的姿势都可以过。</p>
+<p>既然是分一半最多 干脆01背包 到sum/2 最大就好了。orz</p>
+<pre class="prettyprint"><code class="hljs cpp"><span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cmath&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-preprocessor">#include &lt;vector&gt;</span>
+<span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> <span class="hljs-built_in">std</span>;
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">int</span> maxn = <span class="hljs-number">20000</span>+<span class="hljs-number">5</span>;
+
+<span class="hljs-keyword">int</span> w[maxn],dp[maxn];
+
+<span class="hljs-keyword">int</span> main(){
+    <span class="hljs-keyword">int</span> m,n;
+    <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d"</span>,&amp;n);
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">1</span>;i &lt;= n;i++){
+        <span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d"</span>,&amp;w[i]);
+        m += w[i];
+    }
+    <span class="hljs-keyword">int</span> t = m / <span class="hljs-number">2</span>;
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">1</span>;i &lt;= n;i++){
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> j = t;j &gt;= w[i];j--){   
+            dp[j] = max(dp[j],dp[j - w[i]] + w[i]);
+        }
+    }
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"%d %d"</span>,dp[t],m - dp[t]);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; 
+}
+</code></pre>
+</div>
+</body>
+</html>

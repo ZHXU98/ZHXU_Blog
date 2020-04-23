@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>【math_逆元】Alternating_Sum_CodeForces_-_964C</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<p><a data-token="c047dae14ac794d57aec2b35243df7ad" href="http://codeforces.com/problemset/problem/964/C" rel="nofollow">http://codeforces.com/problemset/problem/964/C</a></p>
+<p>给 n,a,b,k; <br/>
+实现一个求和  <br/>
+题意：求 (0~n)∑i=si^a^(n−i) *bi <br/>
+(0~n)∑i=si*a^(n−i)* bi by 109+9 <br/>
+s[i]为+1或-1。 <br/>
+题解：可证：每k项的和相差(b/a)^k。等比数列求和加逆元。 <br/>
+看出来等比 花了点时间 <br/>
+另外注意Q==1 以及 一不下心吧负数整出来这难为人情况 <br/>
+通常+mod 在%mod 处理</p>
+<pre class="prettyprint"><code class="hljs axapta"><span class="hljs-preprocessor">#include &lt;iostream&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstdio&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cstring&gt;</span>
+<span class="hljs-preprocessor">#include &lt;algorithm&gt;</span>
+<span class="hljs-preprocessor">#include &lt;cmath&gt;</span>
+<span class="hljs-preprocessor">#include &lt;vector&gt;</span>
+<span class="hljs-preprocessor">#include &lt;queue&gt;</span>
+<span class="hljs-preprocessor">#include &lt;stack&gt;</span>
+<span class="hljs-preprocessor">#include &lt;map&gt;</span>
+using namespace std;
+typedef <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> ll;
+
+const <span class="hljs-keyword">int</span> maxn=<span class="hljs-number">1e5</span>+<span class="hljs-number">10</span>;
+const ll <span class="hljs-keyword">mod</span>=<span class="hljs-number">1e9</span>+<span class="hljs-number">9</span>;<span class="hljs-comment">// 第一次写的1e9+7 然后一直少2 我也醉了</span>
+
+ll pow_mod(ll a,ll b){
+     ll res=<span class="hljs-number">1</span>;
+     <span class="hljs-keyword">while</span>(b){
+        <span class="hljs-keyword">if</span>(b&amp;<span class="hljs-number">1</span>) res=res*a%<span class="hljs-keyword">mod</span>;
+        a=a*a%<span class="hljs-keyword">mod</span>;
+        b&gt;&gt;=<span class="hljs-number">1</span>;
+     }
+     <span class="hljs-keyword">return</span> res%<span class="hljs-keyword">mod</span>;
+}
+
+<span class="hljs-keyword">int</span> main(){
+<span class="hljs-comment">//  int n;</span>
+    string s;
+    ll n,a,b,k;
+    <span class="hljs-keyword">while</span>(cin&gt;&gt;n&gt;&gt;a&gt;&gt;b&gt;&gt;k){
+        cin&gt;&gt;s;
+        ll v;
+        ll a1=<span class="hljs-number">0</span>;
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;k;i++){
+            v=<span class="hljs-number">1</span>;
+            <span class="hljs-keyword">if</span>(s[i]==<span class="hljs-string">'-'</span>) v=-<span class="hljs-number">1</span>;
+            a1+=((v*pow_mod(a,n-i)%<span class="hljs-keyword">mod</span>*pow_mod(b,i)%<span class="hljs-keyword">mod</span>));
+            a1%=<span class="hljs-keyword">mod</span><span class="hljs-comment">// 首项当然可以为负数</span>
+        }
+
+    <span class="hljs-comment">//  cout&lt;&lt;a1&lt;&lt;endl;i</span>
+        ll num=(n+<span class="hljs-number">1</span>)/k;
+
+        ll Q1=((pow_mod(b,k))+<span class="hljs-keyword">mod</span>)%<span class="hljs-keyword">mod</span>;
+        ll Q2=(pow_mod(pow_mod(a,k),<span class="hljs-keyword">mod</span>-<span class="hljs-number">2</span>)+<span class="hljs-keyword">mod</span>)%<span class="hljs-keyword">mod</span>;
+        ll Q=Q1*Q2%<span class="hljs-keyword">mod</span>;
+        <span class="hljs-keyword">if</span>(Q==<span class="hljs-number">1</span>){<span class="hljs-comment">// Q=1 单独判断 wa了一发 </span>
+            cout&lt;&lt;(a1*num%<span class="hljs-keyword">mod</span>+<span class="hljs-keyword">mod</span>)%<span class="hljs-keyword">mod</span>&lt;&lt;endl;
+            <span class="hljs-keyword">continue</span>;
+        }
+    <span class="hljs-comment">//  cout&lt;&lt;Q&lt;&lt;endl;</span>
+        ll ans=(a1*(<span class="hljs-number">1</span>-pow_mod(Q,num)%<span class="hljs-keyword">mod</span>+<span class="hljs-keyword">mod</span>)%<span class="hljs-keyword">mod</span>)*(pow_mod(<span class="hljs-number">1</span>-Q,<span class="hljs-keyword">mod</span>-<span class="hljs-number">2</span>)%<span class="hljs-keyword">mod</span>+<span class="hljs-keyword">mod</span>)%<span class="hljs-keyword">mod</span>;
+        <span class="hljs-keyword">if</span>(ans&lt;<span class="hljs-number">0</span>) ans+=<span class="hljs-keyword">mod</span>;
+        cout&lt;&lt;ans&lt;&lt;endl;
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+}</code></pre>
+</div>
+</body>
+</html>

@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>2019HDU多校第五场_6630_permutation_2_(打表找规律)</h2>
+<div class="blogpost-body" id="cnblogs_post_body">
+<!-- flowchart 箭头图标 勿删 -->
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<p><img alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20190806145441851.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwODMxMzQw,size_16,color_FFFFFF,t_70"/><br/>
+以下是我打的表。。。。。<img alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20190806145455906.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwODMxMzQw,size_16,color_FFFFFF,t_70"/><br/>
+<img alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/2019080614550026.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwODMxMzQw,size_16,color_FFFFFF,t_70"/><br/>
+眼瞎了 别笑orz<br/>
+我们发现 第一行 除了最后一个就是解。。。。。<br/>
+然后  l == 1 or r == 1 去错开一行  r - l + 1 就是要的解</p>
+<pre><code class="prism language-c"><span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;bits/stdc++.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">define</span> N 1000010</span>
+using namespace std<span class="token punctuation">;</span>
+<span class="token keyword">const</span> <span class="token keyword">int</span> mod <span class="token operator">=</span> <span class="token number">998244353</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> mp<span class="token punctuation">[</span><span class="token number">15</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">15</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> <span class="token keyword">int</span> maxn <span class="token operator">=</span> <span class="token number">1e5</span> <span class="token operator">+</span> <span class="token number">5</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> a<span class="token punctuation">[</span>maxn<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token comment">//	int n;</span>
+<span class="token comment">//	cin &gt;&gt; n;</span>
+<span class="token comment">//	int a[12];</span>
+<span class="token comment">//	for(int i = 1; i &lt;= n; i ++) {</span>
+<span class="token comment">//		a[i] = i;</span>
+<span class="token comment">//	}</span>
+<span class="token comment">//</span>
+<span class="token comment">//	for(int x = 1; x &lt;= n; x ++) {</span>
+<span class="token comment">//		for(int y = x + 1; y &lt;= n; y ++) {</span>
+<span class="token comment">//			int ans = 0;</span>
+<span class="token comment">//			do {</span>
+<span class="token comment">//				int f = 1;</span>
+<span class="token comment">//				if(a[1] == x &amp;&amp; a[n] == y) {</span>
+<span class="token comment">//					for(int z = 2; z &lt;= n; z ++) {</span>
+<span class="token comment">//						if(abs(a[z] - a[z - 1]) &gt; 2)</span>
+<span class="token comment">//							{f = 0; break;}</span>
+<span class="token comment">//					}</span>
+<span class="token comment">//					if(f) ans ++;</span>
+<span class="token comment">//				}</span>
+<span class="token comment">//			}while(next_permutation(a + 1, a + 1 + n));</span>
+<span class="token comment">//			mp[x][y] = mp[y][x] = ans;</span>
+<span class="token comment">//		}</span>
+<span class="token comment">//	}</span>
+<span class="token comment">//	cout &lt;&lt; "    ";</span>
+<span class="token comment">//	for(int i = 1; i &lt;= n; i ++)</span>
+<span class="token comment">//		cout &lt;&lt; "  "&lt;&lt; i &lt;&lt; " ";</span>
+<span class="token comment">//	cout &lt;&lt; endl;</span>
+<span class="token comment">//	cout &lt;&lt; endl;</span>
+<span class="token comment">//	for(int i = 1; i &lt;= n; i ++) {</span>
+<span class="token comment">//		cout &lt;&lt; i &lt;&lt; "     ";</span>
+<span class="token comment">//		for(int j = 1; j &lt;= n; j ++) {</span>
+<span class="token comment">//			cout &lt;&lt; mp[i][j] &lt;&lt; "   ";</span>
+<span class="token comment">//		}cout &lt;&lt; endl;</span>
+<span class="token comment">//	}</span>
+	<span class="token keyword">int</span> t<span class="token punctuation">;</span>
+	cin <span class="token operator">&gt;&gt;</span> t<span class="token punctuation">;</span>
+	<span class="token keyword">int</span> n<span class="token punctuation">,</span> l<span class="token punctuation">,</span> r<span class="token punctuation">;</span>
+
+	a<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+	a<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+	a<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+	a<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+	<span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">4</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> maxn<span class="token punctuation">;</span> i <span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		a<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span>a<span class="token punctuation">[</span>i <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">+</span> a<span class="token punctuation">[</span>i <span class="token operator">-</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">%</span> mod <span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token comment">//	for(int i = 1; i &lt;= 15; i ++) cout &lt;&lt; a[i] &lt;&lt; " " ; cout &lt;&lt; endl;</span>
+	<span class="token keyword">while</span><span class="token punctuation">(</span>t <span class="token operator">--</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		cin <span class="token operator">&gt;&gt;</span> n <span class="token operator">&gt;&gt;</span> l <span class="token operator">&gt;&gt;</span> r<span class="token punctuation">;</span>
+		<span class="token keyword">if</span><span class="token punctuation">(</span>l <span class="token operator">!=</span> <span class="token number">1</span><span class="token punctuation">)</span> l<span class="token operator">++</span><span class="token punctuation">;</span>
+		<span class="token keyword">if</span><span class="token punctuation">(</span>r <span class="token operator">!=</span> n<span class="token punctuation">)</span> r<span class="token operator">--</span><span class="token punctuation">;</span>
+			cout <span class="token operator">&lt;&lt;</span> a<span class="token punctuation">[</span>r <span class="token operator">-</span>  l <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+		
+	<span class="token punctuation">}</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+</div>
+</body>
+</html>
